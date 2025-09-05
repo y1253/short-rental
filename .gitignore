@@ -1,3 +1,5 @@
+# Ignore log files
 *.env 
 
 index.js
+package.json
