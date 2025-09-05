@@ -1,5 +1,7 @@
 *.env
 *.pfx
 
+upload/
+uploa/
 app.js
 index.js
