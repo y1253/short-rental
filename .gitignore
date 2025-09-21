@@ -1,6 +1,7 @@
-# Ignore log files
-*.env 
-
-index.js
+*.env
+*.pfx
 
 upload/
+
+app.js
+index.js
