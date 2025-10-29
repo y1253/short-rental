@@ -29,14 +29,10 @@ async function getRentalType(rentalType, pageNumber = 0) {
       USING(rental_type_selection_id)
     JOIN listings ls
       USING (house_id)
-<<<<<<< HEAD
-    WHERE active >= NOW() AND rental_type=?
-=======
     JOIN listing_types lt
       USING (listing_types_id)
     WHERE active >= NOW() AND rental_type=?
     ORDER BY date_minus_30 DESC
->>>>>>> d341f80abe2d758a481de69c95f6b005ced491d6
    LIMIT ?,?
        
        

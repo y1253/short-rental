@@ -25,14 +25,10 @@ async function getHouseByArea(area, pageNumber = 0) {
       USING (house_id)
     JOIN listings ls
       USING (house_id)
-<<<<<<< HEAD
-    WHERE active >= NOW() AND area=?
-=======
     JOIN listing_types lt
       USING (listing_types_id)
     WHERE active >= NOW() AND area=?
     ORDER BY date_minus_30 DESC
->>>>>>> d341f80abe2d758a481de69c95f6b005ced491d6
 
    LIMIT ?,?
     
