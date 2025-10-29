@@ -2,25 +2,15 @@ import connection from "./dbConnection.js";
 
 async function postHouse(post) {
   await connection.query("START TRANSACTION;");
-  const { account_id, area, state } = post;
+  const { account_id, isLt, area, state } = post;
 
   const [results] = await connection.query(
     `
     INSERT INTO 
     house
-    VALUES (default,?,?,?,0)
+    VALUES (default,?,?,?,?,0)
     `,
-    [account_id, area, state]
-  );
-
-  const { description, price, from, until } = post;
-  await connection.query(
-    `
-    INSERT INTO 
-    house_info
-    VALUES (default,(SELECT MAX(house_id) FROM house),?,?,?,?)
-    `,
-    [description, price, from, until]
+    [account_id, isLt, area, state]
   );
 
   const { bed, bath, shower, people, crib } = post;
@@ -57,18 +47,45 @@ async function postHouse(post) {
     );
   }
 
-  const { rental_type } = post;
-  for (let type of rental_type) {
+  if (!isLt) {
+    const { description, price, from, until } = post;
     await connection.query(
       `
+    INSERT INTO 
+    house_info
+    VALUES (default,(SELECT MAX(house_id) FROM house),?,?,?,?)
+    `,
+      [description, price, from, until]
+    );
+
+    const { rental_type } = post;
+    for (let type of rental_type) {
+      await connection.query(
+        `
         INSERT INTO 
         rental_type
         VALUES (default,(SELECT MAX(house_id) FROM house),?)
         `,
-      [type]
+        [type]
+      );
+    }
+  } else {
+    const { area_id, state, city, zip, address, apt } = post;
+    await connection.query(
+      `
+      INSERT INTO lt_house VALUES(DEFAULT,(SELECT MAX(house_id) FROM house),?,?,?,?,?,? )
+      `,
+      [area_id, state, city, zip, address, apt]
+    );
+
+    const { rent, contract_info, description, broker_name } = post;
+    await connection.query(
+      `
+      INSERT INTO lt_house_info VALUES (DEFAULT,(SELECT MAX(house_id) FROM house),?,?,?,?)
+      `,
+      [rent, contract_info, description, broker_name]
     );
   }
-
   await connection.query("COMMIT;");
 
   return results.insertId;

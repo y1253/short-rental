@@ -1,11 +1,14 @@
 import getHostLocation from "../functions/getHostLocation.js";
 import connection from "./dbConnection.js";
 export const pageSize = 8;
-async function getFullHouses(pageNumber = 0) {
-  
+async function getFullHouses({ pageNumber = 0, isLt }) {
+  //if (isLt) return await getLtFullHouses();
   const finalResults = [];
-  const [results] = await connection.query(
-    `
+  let results = [];
+
+  if (!isLt) {
+    [results] = await connection.query(
+      `
     SELECT 
       DISTINCT house_id,  
       area,
@@ -34,8 +37,51 @@ async function getFullHouses(pageNumber = 0) {
     
     
     `,
-    [pageNumber * pageSize, pageSize + 1]
-  );
+      [pageNumber * pageSize, pageSize + 1]
+    );
+  } else {
+    [results] = await connection.query(
+      `
+    SELECT 
+      DISTINCT house_id,  
+      id.bed,
+      id.bath,
+      ar.name,
+      lh.state,
+      lh.address,
+      lh.city,
+      lh.apt,
+      lh.zip,
+
+     
+      DATE_SUB(active, INTERVAL days DAY) AS date_minus_30
+      
+    FROM house
+    LEFT JOIN icon_details id 
+     USING(house_id)
+
+    JOIN lt_house  lh
+        USING(house_id)
+    
+    LEFT JOIN listings ls
+      USING (house_id)
+
+    LEFT JOIN listing_types lt
+      USING (listing_types_id)
+
+     JOIN area ar
+        USING(area_id)
+    
+    
+    ORDER BY date_minus_30 DESC
+    
+    LIMIT ?,?
+    
+    
+    `,
+      [pageNumber * pageSize, pageSize + 1]
+    );
+  }
 
   for (let data of results) {
     const [resultsPictures] = await connection.query(

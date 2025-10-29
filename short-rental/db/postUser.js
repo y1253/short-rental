@@ -11,7 +11,7 @@ async function postUser({
     `
     INSERT INTO 
     account
-    VALUES (default,?,?,?,?,?)
+    VALUES (default,?,?,?,?,?,NOW())
     `,
     [first_name, last_name, email, password, auth_type]
   );

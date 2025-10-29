@@ -19,9 +19,7 @@ const __dirname = path.dirname(__filename);
 const router = express.Router();
 
 // Initialize Stripe
-const stripe = new Stripe(
-  process.env.STRIPE_KEY
-);
+const stripe = new Stripe(process.env.STRIPE_KEY);
 
 //Fake CC  4242 4242 4242 4242
 

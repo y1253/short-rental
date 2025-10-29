@@ -1,11 +1,16 @@
 import connection from "./dbConnection.js";
 import location from "../functions/getHostLocation.js";
+import getIsLt from "./getIsLt.js";
 
 async function getHouseById(id) {
-  const [results] = await connection.query(
-    `
+  let results = [];
+
+  if (!(await getIsLt(id))) {
+    [results] = await connection.query(
+      `
    SELECT 
   house_id,
+  is_lt,
   state,
   area,
   hi.description,
@@ -17,6 +22,7 @@ async function getHouseById(id) {
   id.crib,
   id.shower,
   id.people,
+
   
   lt.listing_types,
   lt.days
@@ -34,9 +40,51 @@ async function getHouseById(id) {
     
     WHERE house_id=? AND  active >= NOW()
     `,
-    [id]
-  );
+      [id]
+    );
+  } else {
+    [results] = await connection.query(
+      `
+    SELECT 
+     house_id,
+      is_lt,
+      id.bed,
+      id.bath,
+      ar.name,
+      lh.state,
+      lh.address,
+      lh.city,
+      lh.apt,
+      lh.zip,
+      lhi.rent,
+      lhi.contract_info,
+      lhi.description,
+      lhi.broker_name
+    FROM house
+    LEFT JOIN icon_details id 
+     USING(house_id)
 
+    JOIN lt_house  lh
+        USING(house_id)
+    
+    JOIN lt_house_info lhi
+      USING(house_id)
+
+    LEFT JOIN listings ls
+      USING (house_id)
+
+    LEFT JOIN listing_types lt
+      USING (listing_types_id)
+
+     JOIN area ar
+        USING(area_id)
+    
+     WHERE house_id=?
+    
+    `,
+      [id]
+    );
+  }
   if (results.length === 0) return null;
   const [results2] = await connection.query(
     `SELECT contact FROM contact_info WHERE house_id =?
