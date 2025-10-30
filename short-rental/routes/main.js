@@ -1,5 +1,5 @@
 import express from "express";
-import getAllLocations from '../db/getAllLocations.js';
+import getAllLocations from "../db/getAllLocations.js";
 import getFullHouses from "../db/getFullHouses.js";
 import authMiddleware from "../middleware/auth.js";
 import postHouse from "../db/postHouse.js";
@@ -14,13 +14,15 @@ import getListings from "../db/getListings.js";
 import getPath from "../functions/getPath.js";
 import getHouseById from "../db/getHouseById.js";
 import getHouseByIdUnActive from "../db/getHouseByIdUnActive.js";
-import postEditHouseById from '../db/postEditHouseById.js'
+import postEditHouseById from "../db/postEditHouseById.js";
 import admin from "./admin.js";
 import auth from "./auth.js";
 import users from "./users.js";
 import session from "express-session";
 import viesMiddleware from "../middleware/viesMiddleware.js";
-import deleteHouseById from '../db/deleteHouseById.js'
+import deleteHouseById from "../db/deleteHouseById.js";
+import getSelectLocations from "../db/getSelectLocations.js";
+import getHouseByLocationId from "../db/getHouseByLocationId.js";
 
 const router = express.Router();
 router.use(
@@ -28,7 +30,7 @@ router.use(
     secret: "keyboardcat",
     resave: false,
     saveUninitialized: false,
-    cookie: { maxAge: 60000, secure: true,sameSite:'lax'  },
+    cookie: { maxAge: 60000, secure: true, sameSite: "lax" },
   })
 );
 
@@ -53,46 +55,29 @@ router.get("/", async (req, res) => {
     return res.send(
       await getHouseByArea(req.query.location, req.query.pageNumber)
     );
+  if (req.query.locationId)
+    return res.send(await getHouseByLocationId(req.query));
 
-  res.send(await getFullHouses(req.query.pageNumber));
+  res.send(await getFullHouses(req.query));
 });
 
 router.get("/account_listings", authMiddleware, async (req, res) => {
   res.status(200).send(await getHouseByAccount(req.account_id));
 });
 router.get("/alllocations", async (req, res) => {
-  // res.status(200).send([
-  //   {
-  //     "area": "Monsey"
-  //   },
-  //   {
-  //     "area": "Monticello"
-  //   },
-  //   {
-  //     "area": "Monroe"
-  //   },
-  //   {
-  //     "area": "Blooming grove"
-  //   },
-  //   {
-  //     "area": "Liberty"
-  //   },
-  //   {
-  //     "area": "Williamsburg"
-  //   },
-    
-    
-  //   {
-  //     "area": "Bloomingburg"
-  //   }
-    
-  // ]);
-  res.status(200).send([...await getAllLocations(),{
-       "area": "Williamsburg"
-      },])
+  res.status(200).send([
+    ...(await getAllLocations()),
+    {
+      area: "Williamsburg",
+    },
+  ]);
 });
 router.get("/locations", async (req, res) => {
   res.status(200).send(await getLocations());
+});
+
+router.get("/selectLocations", async (req, res) => {
+  res.send(await getSelectLocations());
 });
 
 router.get("/listings", async (req, res) => {
@@ -116,7 +101,6 @@ router.post("/", authMiddleware, async (req, res) => {
   const id = await postHouse({
     ...house,
     account_id: req.account_id,
-    // contact_info: req.body.contact,
     pictures: results,
   });
 
