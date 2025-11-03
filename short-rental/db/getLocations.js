@@ -1,7 +1,22 @@
 import connection from "./dbConnection.js";
 
-async function getLocations() {
-  const [results] = await connection.query(
+async function getLocations(isLt) {
+  let results=[];
+  if(isLt){
+     [results] = await connection.query(
+      `
+      SELECT     
+      area_id,
+      name AS area
+      FROM area
+      
+      
+      
+      `
+    );
+  }
+  else{
+   [results] = await connection.query(
     `
     SELECT     
       DISTINCT area
@@ -12,7 +27,7 @@ async function getLocations() {
     
     `
   );
-
+  }
   return results;
 }
 

@@ -53,7 +53,7 @@ router.get("/", async (req, res) => {
     );
   if (req.query.location)
     return res.send(
-      await getHouseByArea(req.query.location, req.query.pageNumber)
+      await getHouseByArea(req.query)
     );
   if (req.query.locationId)
     return res.send(await getHouseByLocationId(req.query));
@@ -73,7 +73,7 @@ router.get("/alllocations", async (req, res) => {
   ]);
 });
 router.get("/locations", async (req, res) => {
-  res.status(200).send(await getLocations());
+  res.status(200).send(await getLocations(req.query.isLt));
 });
 
 router.get("/selectLocations", async (req, res) => {
