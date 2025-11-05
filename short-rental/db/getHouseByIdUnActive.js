@@ -4,12 +4,12 @@ import getIsLt from "./getIsLt.js";
 
 async function getHouseByIdUnActive(id) {
   let results = [];
-  if (!getIsLt(id)) {
+  if (!(await getIsLt(id))) {
     [results] = await connection.query(
       `
     SELECT 
     house_id,
-    is_lt,
+    h.is_lt,
     state,
     area,
     hi.description,
@@ -25,7 +25,7 @@ async function getHouseByIdUnActive(id) {
     lt.listing_types,
     lt.days
 
-    FROM house 
+    FROM house h
     LEFT JOIN house_info hi 
       USING(house_id)
 
@@ -45,9 +45,10 @@ async function getHouseByIdUnActive(id) {
       `
     SELECT 
     house_id,
-      is_lt,
+      h.is_lt,
       id.bed,
       id.bath,
+      ar.area_id,
       ar.name,
       lh.state,
       lh.address,
@@ -57,12 +58,12 @@ async function getHouseByIdUnActive(id) {
       lhi.rent,
       lhi.contract_info,
       lhi.description,
-      lhi.broker_name
+      lhi.broker_name,
     
     lt.listing_types,
     lt.days
 
-    FROM house 
+    FROM house h
     LEFT JOIN house_info hi 
       USING(house_id)
 
@@ -73,11 +74,13 @@ async function getHouseByIdUnActive(id) {
     LEFT JOIN listing_types lt
       USING (listing_types_id)
     
-    JOIN area ar
-      USING(area_id)
     
     JOIN lt_house lh
       USING (house_id)
+
+    JOIN area ar
+      USING(area_id)
+    
 
     JOIN lt_house_info lhi
       USING (house_id)
