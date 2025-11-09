@@ -7,8 +7,9 @@ async function getAdminAllListings() {
     `
     SELECT 
       DISTINCT house_id,  
-      area,
-      state,
+      IF(h.is_lt>=1,ar.name,area) AS area,
+      
+      IF(h.is_lt>=1,lh.state,h.state) AS state,
       id.bed,
       id.bath,
       id.shower,
@@ -17,12 +18,16 @@ async function getAdminAllListings() {
       
       
       ls.active
-    FROM house
+    FROM house h
     
     LEFT JOIN icon_details id 
       USING (house_id)
     LEFT JOIN listings ls
       USING (house_id)
+    LEFT JOIN lt_house lh
+      USING(house_id)
+    LEFT JOIN area ar
+      USING(area_id)
       
     
     

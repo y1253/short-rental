@@ -10,7 +10,7 @@ async function getHouseByArea({location, pageNumber = 0,isLt}) {
    [results] = await connection.query(
       `
   SELECT 
-      house_id,
+      h.house_id,
       h.is_lt,
       id.bed,
       id.bath,
@@ -20,7 +20,7 @@ async function getHouseByArea({location, pageNumber = 0,isLt}) {
       lh.city,
       lh.apt,
       lh.zip,
-      lhi.rent,
+      lhi.rent AS price,
       lhi.contract_info,
       lhi.description,
       lhi.broker_name,
@@ -44,7 +44,7 @@ async function getHouseByArea({location, pageNumber = 0,isLt}) {
       JOIN area ar
       USING(area_id)
   
-      WHERE name=?
+      WHERE name=? AND  active >= NOW()
        ORDER BY date_minus_30 DESC
           
           LIMIT ?,?
@@ -58,7 +58,7 @@ async function getHouseByArea({location, pageNumber = 0,isLt}) {
    [results] = await connection.query(
     `
     SELECT 
-      DISTINCT house_id,  
+      house_id,  
       area,
       state,
       id.bed,

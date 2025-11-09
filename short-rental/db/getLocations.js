@@ -23,7 +23,7 @@ async function getLocations(isLt) {
     FROM house
     JOIN listings ls
       USING (house_id)
-    WHERE active >= NOW()
+    WHERE active >= NOW() AND area IS NOT NULL
     
     `
   );

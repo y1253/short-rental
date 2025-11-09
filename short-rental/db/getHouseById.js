@@ -56,7 +56,7 @@ async function getHouseById(id) {
       lh.city,
       lh.apt,
       lh.zip,
-      lhi.rent,
+      lhi.rent AS price,
       lhi.contract_info,
       lhi.description,
       lhi.broker_name
@@ -79,7 +79,7 @@ async function getHouseById(id) {
      JOIN area ar
         USING(area_id)
     
-     WHERE house_id=?
+     WHERE house_id=? AND  active >= NOW()
     
     `,
       [id]

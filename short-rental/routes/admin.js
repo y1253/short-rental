@@ -30,8 +30,8 @@ router.post("/newListing", auth, await adminCheck, async (req, res) => {
 });
 
 router.post("/newListingType", auth, await adminCheck, async (req, res) => {
-  const { listing_types, price, days } = req.body;
-  await postListingType(listing_types, price, days);
+  const { listing_types, price, days,isLt } = req.body;
+  await postListingType(listing_types, price, days,isLt);
   res.status(200).send("Successfully Added ");
 });
 

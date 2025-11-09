@@ -20,7 +20,7 @@ async function getFullHouses({ pageNumber = 0, isLt}) {
       id.shower,
       DATE_SUB(active, INTERVAL days DAY) AS date_minus_30
       
-    FROM house
+    FROM house h
     LEFT JOIN icon_details id 
      USING(house_id)
     
@@ -30,7 +30,7 @@ async function getFullHouses({ pageNumber = 0, isLt}) {
     JOIN listing_types lt
       USING (listing_types_id)
     
-    WHERE active >= NOW()
+    WHERE active >= NOW() AND h.is_lt IS NULL
     ORDER BY date_minus_30 DESC
     
     LIMIT ?,?
@@ -53,6 +53,7 @@ async function getFullHouses({ pageNumber = 0, isLt}) {
       lh.city,
       lh.apt,
       lh.zip,
+      lhi.rent AS price ,
 
      
       DATE_SUB(active, INTERVAL days DAY) AS date_minus_30
@@ -63,6 +64,8 @@ async function getFullHouses({ pageNumber = 0, isLt}) {
 
     JOIN lt_house  lh
         USING(house_id)
+    LEFT JOIN lt_house_info lhi
+      USING(house_id)
     
     LEFT JOIN listings ls
       USING (house_id)
@@ -73,7 +76,7 @@ async function getFullHouses({ pageNumber = 0, isLt}) {
      JOIN area ar
         USING(area_id)
     
-    
+    WHERE active >= NOW() AND h.is_lt IS NOT NULL
     ORDER BY date_minus_30 DESC
     
     LIMIT ?,?

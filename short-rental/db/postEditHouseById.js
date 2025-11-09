@@ -2,7 +2,48 @@ import connection from "./dbConnection.js";
 
 async function postEditHouseById(post) {
   // await connection.query("START TRANSACTION;");
-  const { house_id, area, state } = post;
+  
+const {isLt,house_id}=post;
+  if(isLt){
+    const {area_id, state , city ,zip, adress, apt}=post;
+    await connection.query(
+      `
+      DELETE FROM lt_house WHERE house_id=?
+      
+      `,
+      [house_id]
+    );
+    await connection.query(
+      `
+      
+      INSERT INTO 
+      lt_house
+      VALUES (default,?,?,?,?,?,?,?)
+      `,
+      [house_id, area_id, state , city ,zip, adress, apt]
+    );
+
+    const {price,contract_info,description,broker_name}=post;
+    await connection.query(
+      `
+      DELETE FROM lt_house_info WHERE house_id=?
+      
+      `,
+      [house_id]
+    );
+    await connection.query(
+      `
+      
+      INSERT INTO 
+      lt_house_info
+      VALUES (default,?,?,?,?,?)
+      `,
+      [house_id,price,contract_info,description,broker_name]
+    );
+  
+  }
+  else{
+    const { house_id, area, state } = post;
 
   const [results] = await connection.query(
     `
@@ -13,23 +54,43 @@ async function postEditHouseById(post) {
     [area, state, house_id]
   );
 
-  const { description, price, from, until } = post;
+    const { description, price, from, until } = post;
+    await connection.query(
+      `
+      DELETE FROM house_info WHERE house_id=?
+      
+      `,
+      [house_id]
+    );
+    await connection.query(
+      `
+      
+      INSERT INTO 
+      house_info
+      VALUES (default,?,?,?,?,?)
+      `,
+      [house_id, description, price, from, until]
+    );
+
+    const { rental_type } = post;
   await connection.query(
     `
-    DELETE FROM house_info WHERE house_id=?
+    DELETE FROM rental_type WHERE house_id=?
     
     `,
     [house_id]
   );
-  await connection.query(
-    `
-    
-    INSERT INTO 
-    house_info
-    VALUES (default,?,?,?,?,?)
-    `,
-    [house_id, description, price, from, until]
-  );
+  for (let type of rental_type) {
+    await connection.query(
+      `
+        INSERT INTO 
+        rental_type
+        VALUES (default,?,?)
+        `,
+      [house_id, type]
+    );
+  }
+  }
 
   const { bed, bath, shower, people, crib } = post;
   await connection.query(
@@ -87,28 +148,11 @@ async function postEditHouseById(post) {
     );
   }
 
-  const { rental_type } = post;
-  await connection.query(
-    `
-    DELETE FROM rental_type WHERE house_id=?
-    
-    `,
-    [house_id]
-  );
-  for (let type of rental_type) {
-    await connection.query(
-      `
-        INSERT INTO 
-        rental_type
-        VALUES (default,?,?)
-        `,
-      [house_id, type]
-    );
-  }
+  
 
   // await connection.query("COMMIT;");
 
-  return results.insertId;
+  return house_id;
 }
 
 export default postEditHouseById;
