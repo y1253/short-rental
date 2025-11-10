@@ -10,7 +10,7 @@ async function getHouseById(id) {
       `
    SELECT 
   house_id,
-  is_lt,
+  h.is_lt,
   state,
   area,
   hi.description,
@@ -27,7 +27,7 @@ async function getHouseById(id) {
   lt.listing_types,
   lt.days
 
-  FROM house 
+  FROM house h
   LEFT JOIN house_info hi 
     USING(house_id)
 
@@ -47,20 +47,20 @@ async function getHouseById(id) {
       `
     SELECT 
      house_id,
-      is_lt,
+      h.is_lt,
       id.bed,
       id.bath,
-      ar.name,
+      ar.name AS area,
       lh.state,
       lh.address,
       lh.city,
       lh.apt,
       lh.zip,
-      lhi.rent,
+      lhi.rent AS price,
       lhi.contract_info,
       lhi.description,
       lhi.broker_name
-    FROM house
+    FROM house h
     LEFT JOIN icon_details id 
      USING(house_id)
 
@@ -79,7 +79,7 @@ async function getHouseById(id) {
      JOIN area ar
         USING(area_id)
     
-     WHERE house_id=?
+     WHERE house_id=? AND  active >= NOW()
     
     `,
       [id]

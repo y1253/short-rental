@@ -7,6 +7,8 @@ async function getHouseByAccount(account_id) {
     `
     SELECT 
       DISTINCT house_id,  
+      
+      
       area,
       state,
       id.bed,
@@ -23,6 +25,7 @@ async function getHouseByAccount(account_id) {
       USING (house_id)
     LEFT JOIN listings ls
       USING (house_id)
+      
     WHERE account_id=?
     
     `,

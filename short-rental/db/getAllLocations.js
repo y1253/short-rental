@@ -8,6 +8,7 @@ async function getAllLocations() {
     FROM house
     JOIN listings ls
       USING (house_id)
+    WHERE area IS NOT NULL
     
     
     `

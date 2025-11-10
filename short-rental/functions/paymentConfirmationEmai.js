@@ -104,7 +104,7 @@ export function paymentConfirmationEmail({
           </div>
           <p>You can view your transaction history and manage your listings by logging into your dashboard:</p>
           <div class="button-container">
-            <a href="https://www.rentmeech.com" class="button">Go to your Dashboard</a>
+            <a href="https://rentmeech.com" class="button">Go to your Dashboard</a>
           </div>
           <p style="font-size: 14px; color: #666;">If you have any questions or need further assistance, please don't hesitate to contact us by replying to this email.</p>
           <p style="font-size: 14px; color: #666; margin-top: 20px;">Best regards,</p>
@@ -112,11 +112,7 @@ export function paymentConfirmationEmail({
         </div>
         <div class="footer">
           <p>&copy; ${new Date().getFullYear()} RentMeech. All rights reserved.</p>
-<<<<<<< HEAD
-          <p>123 Rental St, Suite 456, City, State, 12345</p>
-=======
           
->>>>>>> d341f80abe2d758a481de69c95f6b005ced491d6
         </div>
       </div>
     </body>
