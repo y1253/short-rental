@@ -5,7 +5,7 @@ async function postEditHouseById(post) {
   
 const {isLt,house_id}=post;
   if(isLt){
-    const {area_id, state , city ,zip, adress, apt}=post;
+    const {area_id, state , city ,zip, address, apt}=post;
     await connection.query(
       `
       DELETE FROM lt_house WHERE house_id=?
@@ -20,7 +20,7 @@ const {isLt,house_id}=post;
       lt_house
       VALUES (default,?,?,?,?,?,?,?)
       `,
-      [house_id, area_id, state , city ,zip, adress, apt]
+      [house_id, area_id, state , city ,zip, address, apt]
     );
 
     const {price,contract_info,description,broker_name}=post;
