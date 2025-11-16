@@ -23,6 +23,7 @@ import viesMiddleware from "../middleware/viesMiddleware.js";
 import deleteHouseById from "../db/deleteHouseById.js";
 import getSelectLocations from "../db/getSelectLocations.js";
 import getHouseByLocationId from "../db/getHouseByLocationId.js";
+import getLtTypes from "../db/getLtTypes.js";
 
 const router = express.Router();
 router.use(
@@ -86,6 +87,10 @@ router.get("/listings", async (req, res) => {
 
 router.get("/rentaltypes", async (req, res) => {
   res.status(200).send(await getRentalTypes());
+});
+
+router.get("/ltTypes", async (req, res) => {
+  res.status(200).send(await getLtTypes());
 });
 
 router.get("/account", authMiddleware, async (req, res) => {
