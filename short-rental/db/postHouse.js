@@ -70,12 +70,14 @@ async function postHouse(post) {
       );
     }
   } else {
-    const { area_id, state, city, zip, address, apt } = post;
+    const { lt_type=1,area_id, state, city, zip,address, apt } = post;
+    console.log(address);
+    
     await connection.query(
       `
-      INSERT INTO lt_house VALUES(DEFAULT,(SELECT MAX(house_id) FROM house),?,?,?,?,?,? )
+      INSERT INTO lt_house VALUES(DEFAULT,(SELECT MAX(house_id) FROM house),?,?,?,?,?,?,? )
       `,
-      [area_id, state, city, zip, address, apt]
+      [lt_type,area_id, state, city, zip, address, apt]
     );
 
     const { rent, contract_info, description, broker_name } = post;

@@ -51,6 +51,7 @@ async function getHouseById(id) {
       id.bed,
       id.bath,
       ar.name AS area,
+      ltp.type AS lt_type,
       lh.state,
       lh.address,
       lh.city,
@@ -76,8 +77,11 @@ async function getHouseById(id) {
     LEFT JOIN listing_types lt
       USING (listing_types_id)
 
-     JOIN area ar
+    JOIN area ar
         USING(area_id)
+
+    LEFT JOIN lt_types ltp
+      USING (lt_types_id)
     
      WHERE house_id=? AND  active >= NOW()
     

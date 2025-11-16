@@ -48,6 +48,7 @@ async function getFullHouses({ pageNumber = 0, isLt}) {
       id.bed,
       id.bath,
       ar.name AS area,
+      ltp.type AS lt_type,
       lh.state,
       lh.address,
       lh.city,
@@ -75,6 +76,9 @@ async function getFullHouses({ pageNumber = 0, isLt}) {
 
      JOIN area ar
         USING(area_id)
+
+    LEFT JOIN lt_types ltp
+      USING (lt_types_id)
     
     WHERE active >= NOW() AND h.is_lt IS NOT NULL
     ORDER BY date_minus_30 DESC
