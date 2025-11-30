@@ -71,23 +71,23 @@ export function signUpEmail(userName) {
     <body>
       <div class="container">
         <div class="header">
-          <h1>RentMeech</h1>
+          <h1>HeimishHub</h1>
           <p>Your home for rental listings</p>
         </div>
         <div class="content">
           <p>Hi ${userName},</p>
-          <p>Welcome to RentMeech! We're thrilled to have you join our community.</p>
+          <p>Welcome to HeimishHub! We're thrilled to have you join our community.</p>
           <p>You've successfully created your account. Now you can start listing your properties or finding your next home with ease.</p>
           <p>To get started, please click the button below to log in to your dashboard:</p>
           <div class="button-container">
-            <a href="https://rentmeech.com/login" class="button">Go to your Dashboard</a>
+            <a href="https://HeimishHub.com/login" class="button">Go to your Dashboard</a>
           </div>
           <p style="font-size: 14px; color: #666;">If you have any questions, feel free to reply to this email.</p>
           <p style="font-size: 14px; color: #666; margin-top: 20px;">Best regards,</p>
-          <p style="font-size: 14px; color: #666;">The RentMeech Team</p>
+          <p style="font-size: 14px; color: #666;">The HeimishHubh Team</p>
         </div>
         <div class="footer">
-          <p>&copy; ${new Date().getFullYear()} RentMeech. All rights reserved.</p>
+          <p>&copy; ${new Date().getFullYear()} HeimishHub. All rights reserved.</p>
           
         </div>
       </div>
