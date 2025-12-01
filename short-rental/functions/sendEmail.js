@@ -6,8 +6,8 @@ const mailConfig = nodemailer.createTransport({
   //service: "Hotmail",
   service: "gmail",
   auth: {
-    user: "rentmeechlistings@gmail.com",
-    pass: "tzis fbjm vdyt zdpx",
+    user: "heimishhub@gmail.com",
+    pass: "jmqy wbon ikwp bogd",
   },
 });
 
@@ -20,13 +20,13 @@ export default async function ({
 }) {
   const mailOptions = {
     from: {
-      name: "Rentmeech",
-      address: "Rentmeech",
+      name: "HeimishHub",
+      address: "HeimishHub",
     },
     to: email,
     subject: emailType === 1
-    ? "Welcome to RentMeech! Your Journey Starts Here"
-    : "Great News! Your RentMeech Payment Was Successful",
+    ? "Welcome to HeimishHub! Your Journey Starts Here"
+    : "Great News! Your HeimishHub Payment Was Successful",
 
     
     html:

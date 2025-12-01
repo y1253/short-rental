@@ -9,7 +9,7 @@ export function paymentConfirmationEmail({
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Your RentMeech Payment Confirmation</title>
+      <title>Your HeimishHub Payment Confirmation</title>
       <style>
         body {
           font-family: Arial, sans-serif;
@@ -89,29 +89,29 @@ export function paymentConfirmationEmail({
     <body>
       <div class="container">
         <div class="header">
-          <h1>RentMeech</h1>
+          <h1>HeimishHub</h1>
           <p>Your home for rental listings</p>
         </div>
         <div class="content">
           <p>Hi ${userName},</p>
-          <p>Thank you for your recent payment to RentMeech! Your transaction has been successfully processed.</p>
+          <p>Thank you for your recent payment to HeimishHub! Your transaction has been successfully processed.</p>
           <p>Here are the details of your payment:</p>
           <div class="details-box">
             <p><strong>Amount Paid:</strong>$ ${paymentAmount}</p>
             <p><strong>Transaction ID:</strong> ${transactionId}</p>
             <p><strong>Date:</strong> ${new Date()}</p>
-            <p>This payment is for your recent activity on RentMeech.</p>
+            <p>This payment is for your recent activity on HeimishHub.</p>
           </div>
           <p>You can view your transaction history and manage your listings by logging into your dashboard:</p>
           <div class="button-container">
-            <a href="https://rentmeech.com" class="button">Go to your Dashboard</a>
+            <a href="https://HeimishHub.com" class="button">Go to your Dashboard</a>
           </div>
           <p style="font-size: 14px; color: #666;">If you have any questions or need further assistance, please don't hesitate to contact us by replying to this email.</p>
           <p style="font-size: 14px; color: #666; margin-top: 20px;">Best regards,</p>
-          <p style="font-size: 14px; color: #666;">The RentMeech Team</p>
+          <p style="font-size: 14px; color: #666;">The HeimishHub Team</p>
         </div>
         <div class="footer">
-          <p>&copy; ${new Date().getFullYear()} RentMeech. All rights reserved.</p>
+          <p>&copy; ${new Date().getFullYear()} HeimishHub. All rights reserved.</p>
           
         </div>
       </div>
