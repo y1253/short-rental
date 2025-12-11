@@ -84,7 +84,7 @@ export function signUpEmail(userName) {
           </div>
           <p style="font-size: 14px; color: #666;">If you have any questions, feel free to reply to this email.</p>
           <p style="font-size: 14px; color: #666; margin-top: 20px;">Best regards,</p>
-          <p style="font-size: 14px; color: #666;">The HeimishHubh Team</p>
+          <p style="font-size: 14px; color: #666;">The HeimishHub Team</p>
         </div>
         <div class="footer">
           <p>&copy; ${new Date().getFullYear()} HeimishHub. All rights reserved.</p>
