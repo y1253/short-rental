@@ -7,7 +7,6 @@ import getHouseByArea from "../db/getHouseByArea.js";
 import getLocations from "../db/getLocations.js";
 import getRentalType from "../db/getRentalType.js";
 import getHouseByTypeLocation from "../db/getHouseByTypeLocation.js";
-import postListings from "../db/postListings.js";
 import getHouseByAccount from "../db/getHouseByAccount.js";
 import getRentalTypes from "../db/getRentalTypes.js";
 import getListings from "../db/getListings.js";
@@ -18,6 +17,7 @@ import postEditHouseById from "../db/postEditHouseById.js";
 import admin from "./admin.js";
 import auth from "./auth.js";
 import users from "./users.js";
+import promoCode from "./promoCode.js";
 import session from "express-session";
 import viesMiddleware from "../middleware/viesMiddleware.js";
 import deleteHouseById from "../db/deleteHouseById.js";
@@ -39,6 +39,7 @@ router.use(viesMiddleware);
 router.use("/admin", admin);
 router.use("/users", users);
 router.use("/auth", auth);
+router.use("/promo_code", promoCode);
 
 router.get("/", async (req, res) => {
   if (req.query.id) return res.send(await getHouseById(req.query.id));
@@ -52,10 +53,7 @@ router.get("/", async (req, res) => {
     return res.send(
       await getRentalType(req.query.rentaltype, req.query.pageNumber)
     );
-  if (req.query.location)
-    return res.send(
-      await getHouseByArea(req.query)
-    );
+  if (req.query.location) return res.send(await getHouseByArea(req.query));
   if (req.query.locationId)
     return res.send(await getHouseByLocationId(req.query));
 

@@ -1,6 +1,12 @@
 import connection from "./dbConnection.js";
 
-async function postActiveHouse({ house_id, days }, amount) {
+async function postActiveHouse({
+  house_id,
+  days,
+  price,
+  listing_type,
+  promo_code,
+}) {
   const activeDate = new Date(new Date().setDate(new Date().getDate() + days));
   await connection.query(
     `
@@ -16,10 +22,10 @@ async function postActiveHouse({ house_id, days }, amount) {
     `
     INSERT INTO 
     payments
-    VALUES(default,?,NOW(),?)
+    VALUES(default,?,?,?,NOW(),?)
     `,
 
-    [house_id, amount / 100]
+    [house_id, listing_type, promo_code, price]
   );
   return results.insertId;
 }

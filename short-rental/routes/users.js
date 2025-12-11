@@ -17,7 +17,11 @@ router.post("/", async (req, res) => {
   const salt = await bcrypt.genSalt(10);
   req.body.password = await bcrypt.hash(req.body.password, salt);
   await postUser(req.body);
-  await sendEmail({ name: req.body.first_name, email: req.body.email, emailType: 1 });
+  await sendEmail({
+    name: req.body.first_name,
+    email: req.body.email,
+    emailType: 1,
+  });
   const token = await getToken(req.body);
 
   res.status(200).send(token);

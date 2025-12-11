@@ -20,11 +20,9 @@ async function getHouseByIdUnActive(id) {
     id.bath,
     id.crib,
     id.shower,
-    id.people,
+    id.people
     
-    lt.listing_types,
-    lt.days
-
+    
     FROM house h
     LEFT JOIN house_info hi 
       USING(house_id)
@@ -33,8 +31,7 @@ async function getHouseByIdUnActive(id) {
       USING (house_id)
     LEFT JOIN listings ls
       USING (house_id)
-    LEFT JOIN listing_types lt
-      USING (listing_types_id)
+   
       
       WHERE house_id=? 
       `,
@@ -59,10 +56,10 @@ async function getHouseByIdUnActive(id) {
       lhi.rent AS price,
       lhi.contract_info,
       lhi.description,
-      lhi.broker_name,
+      lhi.broker_name
     
-    lt.listing_types,
-    lt.days
+   
+    
 
     FROM house h
     LEFT JOIN house_info hi 
@@ -72,8 +69,7 @@ async function getHouseByIdUnActive(id) {
       USING (house_id)
     LEFT JOIN listings ls
       USING (house_id)
-    LEFT JOIN listing_types lt
-      USING (listing_types_id)
+    
     
     
     JOIN lt_house lh

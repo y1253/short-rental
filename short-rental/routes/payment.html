@@ -173,10 +173,11 @@
       try {
         const response = await fetch('http://localhost:5000/api/process-payment', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json' ,"x-auth-token":'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InllY2hpZWxUZXN0QGdtYWlsLmNvbSIsInBhc3N3b3JkIjoiJDJiJDEwJFdmNFowNTc5dFNsdUxna1NFbHNTLi5nUFI4M1dKYnNnZktMdDZFY1Y1THkuTGsxWE54dlV1IiwiZmlyc3RfbmFtZSI6InllY2hpZWwiLCJsYXN0X25hbWUiOiJHIiwiYWNjb3VudF9pZCI6MjYsImlhdCI6MTc2NDk0OTk0NX0.uFJQbUfG9J_cQC6iXTgJds2XGFs_27NFWBb-GMIpRvs'},
           body: JSON.stringify({
             paymentMethodId: paymentMethod.id,
-            amount: 2000, // $20.00,
+            amount: 4000, // $20.00,
+            promo_code:1,
             email:'yuchiel1253@gmail.com',
             name:'ytttechiel ggg',
             house_id:30,

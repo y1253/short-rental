@@ -21,12 +21,11 @@ async function getHouseById(id) {
   id.bath,
   id.crib,
   id.shower,
-  id.people,
+  id.people
 
   
-  lt.listing_types,
-  lt.days
-
+  
+  
   FROM house h
   LEFT JOIN house_info hi 
     USING(house_id)
@@ -35,8 +34,7 @@ async function getHouseById(id) {
     USING (house_id)
   LEFT JOIN listings ls
     USING (house_id)
-  LEFT JOIN listing_types lt
-    USING (listing_types_id)
+  
     
     WHERE house_id=? AND  active >= NOW()
     `,
@@ -74,8 +72,7 @@ async function getHouseById(id) {
     LEFT JOIN listings ls
       USING (house_id)
 
-    LEFT JOIN listing_types lt
-      USING (listing_types_id)
+    
 
     JOIN area ar
         USING(area_id)

@@ -1,8 +1,9 @@
 import getHostLocation from "../functions/getHostLocation.js";
 import connection from "./dbConnection.js";
 export const pageSize = 8;
-async function getFullHouses({ pageNumber = 0, isLt}) {
+async function getFullHouses({ pageNumber = 0, isLt }) {
   //if (isLt) return await getLtFullHouses();
+  //DATE_SUB(active, INTERVAL days DAY) AS date_minus_30
   const finalResults = [];
   let results = [];
 
@@ -17,8 +18,8 @@ async function getFullHouses({ pageNumber = 0, isLt}) {
       id.bath,
       id.crib,
       id.people,
-      id.shower,
-      DATE_SUB(active, INTERVAL days DAY) AS date_minus_30
+      id.shower
+      
       
     FROM house h
     LEFT JOIN icon_details id 
@@ -27,11 +28,10 @@ async function getFullHouses({ pageNumber = 0, isLt}) {
     JOIN listings ls
       USING (house_id)
 
-    JOIN listing_types lt
-      USING (listing_types_id)
+    
     
     WHERE active >= NOW() AND h.is_lt IS NULL
-    ORDER BY date_minus_30 DESC
+   
     
     LIMIT ?,?
     
@@ -54,10 +54,10 @@ async function getFullHouses({ pageNumber = 0, isLt}) {
       lh.city,
       lh.apt,
       lh.zip,
-      lhi.rent AS price ,
+      lhi.rent AS price 
 
      
-      DATE_SUB(active, INTERVAL days DAY) AS date_minus_30
+      
       
     FROM house h
     LEFT JOIN icon_details id 
@@ -71,9 +71,7 @@ async function getFullHouses({ pageNumber = 0, isLt}) {
     LEFT JOIN listings ls
       USING (house_id)
 
-    LEFT JOIN listing_types lt
-      USING (listing_types_id)
-
+    
      JOIN area ar
         USING(area_id)
 
@@ -81,7 +79,7 @@ async function getFullHouses({ pageNumber = 0, isLt}) {
       USING (lt_types_id)
     
     WHERE active >= NOW() AND h.is_lt IS NOT NULL
-    ORDER BY date_minus_30 DESC
+    
     
     LIMIT ?,?
     

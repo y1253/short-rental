@@ -2,12 +2,11 @@ import connection from "./dbConnection.js";
 import getHostLocation from "../functions/getHostLocation.js";
 import { pageSize } from "./getFullHouses.js";
 
-
-async function getHouseByArea({location, pageNumber = 0,isLt}) {
+async function getHouseByArea({ location, pageNumber = 0, isLt }) {
   const finalResults = [];
   let results;
-  if(isLt){
-   [results] = await connection.query(
+  if (isLt) {
+    [results] = await connection.query(
       `
   SELECT 
       h.house_id,
@@ -23,8 +22,8 @@ async function getHouseByArea({location, pageNumber = 0,isLt}) {
       lhi.rent AS price,
       lhi.contract_info,
       lhi.description,
-      lhi.broker_name,
-      DATE_SUB(active, INTERVAL days DAY) AS date_minus_30
+      lhi.broker_name
+      
   FROM house h
   LEFT JOIN icon_details id 
       USING(house_id)
@@ -38,14 +37,13 @@ async function getHouseByArea({location, pageNumber = 0,isLt}) {
   LEFT JOIN listings ls
       USING (house_id)
   
-  LEFT JOIN listing_types lt
-      USING (listing_types_id)
+  
   
       JOIN area ar
       USING(area_id)
   
       WHERE name=? AND  active >= NOW()
-       ORDER BY date_minus_30 DESC
+       
           
           LIMIT ?,?
           
@@ -53,10 +51,9 @@ async function getHouseByArea({location, pageNumber = 0,isLt}) {
           `,
       [location, pageNumber * pageSize, pageSize + 1]
     );
-  }
-  else{
-   [results] = await connection.query(
-    `
+  } else {
+    [results] = await connection.query(
+      `
     SELECT 
       house_id,  
       area,
@@ -68,25 +65,24 @@ async function getHouseByArea({location, pageNumber = 0,isLt}) {
       id.crib,
       
       
-      ls.active,
-      DATE_SUB(active, INTERVAL days DAY) AS date_minus_30
+      ls.active
+      
     FROM house
     
     LEFT JOIN icon_details id 
       USING (house_id)
     JOIN listings ls
       USING (house_id)
-    JOIN listing_types lt
-      USING (listing_types_id)
+    
     WHERE active >= NOW() AND area=?
-    ORDER BY date_minus_30 DESC
+    ORDER BY house_id DESC
 
    LIMIT ?,?
     
     
     `,
-    [location, pageNumber * pageSize, pageSize + 1]
-  );
+      [location, pageNumber * pageSize, pageSize + 1]
+    );
   }
   for (let data of results) {
     const [resultsPictures] = await connection.query(

@@ -6,12 +6,12 @@ import { fileURLToPath } from "url";
 import savePaymentMethod from "../functions/savePaymentMethod.js";
 import postActiveHouse from "../db/postActiveHouse.js";
 import getHouseByIdUnActive from "../db/getHouseByIdUnActive.js";
-import postListings from "../db/postListings.js";
 import getListingsById from "../db/getListingsById.js";
-import postEditListings from "../db/postEditListings.js";
 import auth from "../middleware/auth.js";
 import sendEmail from "../functions/sendEmail.js";
 import getEmail from "../db/getEmail.js";
+import getListingTypeById from "../db/getListingTypeById.js";
+import getPromoCodeById from "../db/getPromoCodeById.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -29,21 +29,39 @@ router.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "payment.html"));
 });
 router.post("/process-payment", auth, async (req, res) => {
-  const { paymentMethodId, amount, house_id, listing_type } = req.body;
-  console.log(paymentMethodId, amount, house_id, listing_type);
+  const { paymentMethodId, house_id, listing_type, promo_code } = req.body;
+  let { price, days } = await getListingTypeById(listing_type);
+  const { amount } = await getPromoCodeById(promo_code);
 
-  const listingResults = await getListingsById(house_id);
+  // if (amount) price = Math.trunc(price) - Math.trunc(amount);
+  if (amount) price = price - amount;
 
-  if (listingResults.length > 0) {
-    await postEditListings(house_id, listing_type);
-  } else {
-    await postListings(house_id, listing_type);
+  const postListing = async () => {
+    const transactionId = await postActiveHouse({
+      price,
+      house_id,
+      promo_code,
+      days,
+      listing_type,
+    });
+    const userResults = await getEmail(req.email);
+    await sendEmail({
+      name: userResults[0].first_name,
+      emailType: 2,
+      amount: price,
+      email: req.email,
+      transactionId,
+    });
+  };
+
+  if (price <= 0) {
+    postListing();
+    return res.json({ success: true });
   }
-
   try {
     // Create a payment intent with the payment method ID from the frontend
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: amount,
+      amount: price * 100,
       currency: "usd",
       payment_method: paymentMethodId,
       confirm: true,
@@ -57,18 +75,7 @@ router.post("/process-payment", auth, async (req, res) => {
       paymentIntent.status === "succeeded" ||
       paymentIntent.status === "processing"
     ) {
-      const results = await getHouseByIdUnActive(house_id);
-
-      const transactionId = await postActiveHouse(results, amount);
-      const userResults = await getEmail(req.email);
-      await sendEmail({
-        name: userResults[0].first_name,
-        emailType: 2,
-        amount: amount / 100,
-        email: req.email,
-        transactionId,
-      });
-
+      postListing();
       return res.json({ success: true, paymentIntent });
     } else if (paymentIntent.status === "requires_action") {
       // 3D Secure authentication needed
@@ -175,7 +182,7 @@ router.delete("/api/payment-methods/:paymentMethodId", async (req, res) => {
 });
 
 router.get("/adminAdd/:house_id/:listing_type", async (req, res) => {
-  await postListings(req.params.house_id, req.params.listing_type);
+  //await postListings(req.params.house_id, req.params.listing_type);
   const results = await getHouseByIdUnActive(req.params.house_id);
 
   await postActiveHouse(results, 0);

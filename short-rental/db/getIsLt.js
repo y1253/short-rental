@@ -8,6 +8,7 @@ async function getIsLt(id) {
     [id]
   );
   // if (results.length === 0) return false;
+
   return results[0].is_lt ? true : false;
 }
 
