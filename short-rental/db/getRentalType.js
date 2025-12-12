@@ -17,8 +17,8 @@ async function getRentalType(rentalType, pageNumber = 0) {
       id.crib,
       
       
-      ls.active,
-      DATE_SUB(active, INTERVAL days DAY) AS date_minus_30
+      ls.active
+      
     FROM house
     
     LEFT JOIN icon_details id 
@@ -29,10 +29,9 @@ async function getRentalType(rentalType, pageNumber = 0) {
       USING(rental_type_selection_id)
     JOIN listings ls
       USING (house_id)
-    JOIN listing_types lt
-      USING (listing_types_id)
+    
     WHERE active >= NOW() AND rental_type=?
-    ORDER BY date_minus_30 DESC
+   
    LIMIT ?,?
        
        

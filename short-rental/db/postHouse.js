@@ -90,6 +90,10 @@ async function postHouse(post) {
   }
   await connection.query("COMMIT;");
 
+  await connection.query(`
+    INSERT INTO listings VALUES(DEFAULT,?,NOW(),NULL,NULL)
+    `,[results.insertId])
+
   return results.insertId;
 }
 

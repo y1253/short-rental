@@ -55,7 +55,7 @@ router.post("/process-payment", auth, async (req, res) => {
   };
 
   if (price <= 0) {
-    postListing();
+    await postListing();
     return res.json({ success: true });
   }
   try {
@@ -75,7 +75,7 @@ router.post("/process-payment", auth, async (req, res) => {
       paymentIntent.status === "succeeded" ||
       paymentIntent.status === "processing"
     ) {
-      postListing();
+      await postListing();
       return res.json({ success: true, paymentIntent });
     } else if (paymentIntent.status === "requires_action") {
       // 3D Secure authentication needed
