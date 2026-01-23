@@ -31,9 +31,11 @@ async function getFullHouses({ pageNumber = 0, isLt }) {
     
     
     WHERE active >= NOW() AND h.is_lt IS NULL
+    order by h.house_id desc
    
     
     LIMIT ?,?
+    
     
     
     `,
@@ -79,9 +81,11 @@ async function getFullHouses({ pageNumber = 0, isLt }) {
       USING (lt_types_id)
     
     WHERE active >= NOW() AND h.is_lt IS NOT NULL
+    order by h.house_id desc
     
     
     LIMIT ?,?
+    
     
     
     `,

@@ -3,7 +3,7 @@ import connection from "./dbConnection.js";
 async function postActiveHouse({
   house_id,
   days,
-  price,
+  price=0,
   listing_type,
   promo_code,
 }) {

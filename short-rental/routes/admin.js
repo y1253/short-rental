@@ -10,6 +10,7 @@ import getAdminAllListings from "../db/getAdminAllListings.js";
 import getPc from "../db/getPc.js";
 import postPc from "../db/postPc.js";
 import deletePc from "../db/deletePc.js";
+import getListingTypeById from "../db/getListingTypeById.js";
 const router = express.Router();
 
 router.get("/allListings", auth, await adminCheck, async (req, res) => {
@@ -29,8 +30,9 @@ router.post("/newListing", auth, await adminCheck, async (req, res) => {
   //   await postListings(house_id, listing_type);
   // }
   const results = await getHouseByIdUnActive(house_id);
+  const days=await getListingTypeById(listing_type);
 
-  await postActiveHouse(results, 0);
+  await postActiveHouse({...results,listing_type,price:0,days:days.days}, 0);
   res.status(200).json("Successfully Listed");
 });
 

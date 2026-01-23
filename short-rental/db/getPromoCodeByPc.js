@@ -6,7 +6,7 @@ async function getPromoCodeByPc(promo_code) {
     SELECT *
     FROM
    promo_code
-    WHERE promo_code=?
+    WHERE promo_code=? AND delete_at IS NULL
     
     `,
     [promo_code]
