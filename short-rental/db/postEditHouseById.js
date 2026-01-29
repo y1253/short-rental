@@ -2,16 +2,16 @@ import connection from "./dbConnection.js";
 
 async function postEditHouseById(post) {
   // await connection.query("START TRANSACTION;");
-  
-const {isLt,house_id}=post;
-  if(isLt){
-    const {lt_type=1,area_id, state , city ,zip, address, apt}=post;
+
+  const { isSum, isLt, house_id } = post;
+  if (isLt) {
+    const { lt_type = 1, area_id, state, city, zip, address, apt } = post;
     await connection.query(
       `
       DELETE FROM lt_house WHERE house_id=?
       
       `,
-      [house_id]
+      [house_id],
     );
     await connection.query(
       `
@@ -20,16 +20,16 @@ const {isLt,house_id}=post;
       lt_house
       VALUES (default,?,?,?,?,?,?,?,?)
       `,
-      [house_id, lt_type,area_id, state , city ,zip, address, apt]
+      [house_id, lt_type, area_id, state, city, zip, address, apt],
     );
 
-    const {price,contract_info,description,broker_name}=post;
+    const { price, contract_info, description, broker_name } = post;
     await connection.query(
       `
       DELETE FROM lt_house_info WHERE house_id=?
       
       `,
-      [house_id]
+      [house_id],
     );
     await connection.query(
       `
@@ -38,21 +38,36 @@ const {isLt,house_id}=post;
       lt_house_info
       VALUES (default,?,?,?,?,?)
       `,
-      [house_id,price,contract_info,description,broker_name]
+      [house_id, price, contract_info, description, broker_name],
     );
-  
-  }
-  else{
+  } else if (isSum) {
+    if (isSum) {
+      const { summer_time, house_type, bungalow_colony } = post;
+      await connection.query(
+        `
+      DELETE FROM summer WHERE house_id=?
+      
+      `,
+        [house_id],
+      );
+      await connection.query(
+        `
+      INSERT INTO summer VALUES (DEFAULT,(SELECT MAX(house_id) FROM house),?,?,?)
+      `,
+        [summer_time, house_type, bungalow_colony],
+      );
+    }
+  } else {
     const { house_id, area, state } = post;
 
-  const [results] = await connection.query(
-    `
+    const [results] = await connection.query(
+      `
      UPDATE house
     SET area=?,state=?
         WHERE house_id =?
     `,
-    [area, state, house_id]
-  );
+      [area, state, house_id],
+    );
 
     const { description, price, from, until } = post;
     await connection.query(
@@ -60,7 +75,7 @@ const {isLt,house_id}=post;
       DELETE FROM house_info WHERE house_id=?
       
       `,
-      [house_id]
+      [house_id],
     );
     await connection.query(
       `
@@ -69,27 +84,27 @@ const {isLt,house_id}=post;
       house_info
       VALUES (default,?,?,?,?,?)
       `,
-      [house_id, description, price, from, until]
+      [house_id, description, price, from, until],
     );
 
     const { rental_type } = post;
-  await connection.query(
-    `
+    await connection.query(
+      `
     DELETE FROM rental_type WHERE house_id=?
     
     `,
-    [house_id]
-  );
-  for (let type of rental_type) {
-    await connection.query(
-      `
+      [house_id],
+    );
+    for (let type of rental_type) {
+      await connection.query(
+        `
         INSERT INTO 
         rental_type
         VALUES (default,?,?)
         `,
-      [house_id, type]
-    );
-  }
+        [house_id, type],
+      );
+    }
   }
 
   const { bed, bath, shower, people, crib } = post;
@@ -98,7 +113,7 @@ const {isLt,house_id}=post;
     DELETE FROM icon_details WHERE house_id=?
     
     `,
-    [house_id]
+    [house_id],
   );
   await connection.query(
     `
@@ -106,7 +121,7 @@ const {isLt,house_id}=post;
     icon_details
     VALUES (default,?,?,?,?,?,?)
     `,
-    [house_id, bed, bath, shower, people, crib]
+    [house_id, bed, bath, shower, people, crib],
   );
 
   const { pictures } = post;
@@ -116,7 +131,7 @@ const {isLt,house_id}=post;
     DELETE FROM pictures WHERE house_id=?
     
     `,
-    [house_id]
+    [house_id],
   );
   for (let picture of pictures) {
     await connection.query(
@@ -125,7 +140,7 @@ const {isLt,house_id}=post;
         pictures
         VALUES (default,?,?)
         `,
-      [house_id, picture]
+      [house_id, picture],
     );
   }
 
@@ -135,7 +150,7 @@ const {isLt,house_id}=post;
     DELETE FROM contact_info WHERE house_id=?
     
     `,
-    [house_id]
+    [house_id],
   );
   for (let contact of contact_info) {
     await connection.query(
@@ -144,11 +159,9 @@ const {isLt,house_id}=post;
         contact_info
         VALUES (default,?,?)
         `,
-      [house_id, contact]
+      [house_id, contact],
     );
   }
-
-  
 
   // await connection.query("COMMIT;");
 

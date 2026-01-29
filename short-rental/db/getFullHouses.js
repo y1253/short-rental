@@ -1,47 +1,12 @@
 import getHostLocation from "../functions/getHostLocation.js";
 import connection from "./dbConnection.js";
 export const pageSize = 8;
-async function getFullHouses({ pageNumber = 0, isLt }) {
+async function getFullHouses({ pageNumber = 0, isLt, isSum }) {
   //if (isLt) return await getLtFullHouses();
   //DATE_SUB(active, INTERVAL days DAY) AS date_minus_30
   const finalResults = [];
   let results = [];
-
-  if (!isLt) {
-    [results] = await connection.query(
-      `
-    SELECT 
-      DISTINCT house_id,  
-      area,
-      state,
-      id.bed,
-      id.bath,
-      id.crib,
-      id.people,
-      id.shower
-      
-      
-    FROM house h
-    LEFT JOIN icon_details id 
-     USING(house_id)
-    
-    JOIN listings ls
-      USING (house_id)
-
-    
-    
-    WHERE active >= NOW() AND h.is_lt IS NULL
-    order by h.house_id desc
-   
-    
-    LIMIT ?,?
-    
-    
-    
-    `,
-      [pageNumber * pageSize, pageSize + 1]
-    );
-  } else {
+  if (isLt) {
     [results] = await connection.query(
       `
     SELECT 
@@ -89,7 +54,98 @@ async function getFullHouses({ pageNumber = 0, isLt }) {
     
     
     `,
-      [pageNumber * pageSize, pageSize + 1]
+      [pageNumber * pageSize, pageSize + 1],
+    );
+  } else if (isSum) {
+    [results] = await connection.query(
+      `
+    SELECT 
+      DISTINCT house_id,  
+      is_sum,
+      area,
+      state,
+      id.bed,
+      id.bath,
+      id.crib,
+      id.people,
+      id.shower,
+      sm.bungalow_colony,
+      st.summer_time,
+      ht.house_type,
+      hi.price,
+      hi.per
+      
+      
+    FROM house h
+    LEFT JOIN icon_details id 
+     USING(house_id)
+    
+    JOIN listings ls
+      USING (house_id)
+
+    LEFT JOIN summer sm 
+      using(house_id)
+
+    LEFT JOIN summer_time st
+      using(summer_time_id)
+
+    LEFT JOIN house_type ht
+      using (house_type_id)
+
+    LEFT JOIN house_info hi
+      USING(house_id)
+
+    
+    
+    WHERE active >= NOW() AND h.is_sum IS NOT NULL
+    order by h.house_id desc
+   
+    
+    LIMIT ?,?
+    
+    
+    
+    `,
+      [pageNumber * pageSize, pageSize + 1],
+    );
+  } else {
+    [results] = await connection.query(
+      `
+    SELECT 
+      DISTINCT house_id,  
+      area,
+      state,
+      id.bed,
+      id.bath,
+      id.crib,
+      id.people,
+      id.shower,
+      hi.price,
+      hi.per
+      
+      
+    FROM house h
+    LEFT JOIN icon_details id 
+     USING(house_id)
+    
+    JOIN listings ls
+      USING (house_id)
+
+    LEFT JOIN house_info hi
+      USING(house_id)
+
+    
+    
+    WHERE active >= NOW() AND h.is_lt IS NULL AND h.is_sum IS NULL
+    order by h.house_id desc
+   
+    
+    LIMIT ?,?
+    
+    
+    
+    `,
+      [pageNumber * pageSize, pageSize + 1],
     );
   }
 
@@ -104,7 +160,7 @@ async function getFullHouses({ pageNumber = 0, isLt }) {
     WHERE house_id= ?
     
     `,
-      [getHostLocation, data.house_id]
+      [getHostLocation, data.house_id],
     );
     finalResults.push({ ...data, pictures: resultsPictures });
   }

@@ -120,7 +120,7 @@
     // Handle Google Sign-In
     async function handleGoogleSignIn(response) {
       try {
-        const result = await fetch('http://localhost:5000/short_rental/users/api/auth/google', {
+        const result = await fetch('http://localhost:3000/users/google', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -153,7 +153,7 @@
       const password = document.getElementById('password').value;
       
       try {
-        const response = await fetch('http://localhost:5000/short_rental/users', {
+        const response = await fetch('http://localhost:3000/users/google', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'

@@ -10,6 +10,7 @@ async function getHouseByIdUnActive(id) {
     SELECT 
     house_id,
     h.is_lt,
+    h.is_sum,
     state,
     area,
     hi.description,
@@ -20,7 +21,11 @@ async function getHouseByIdUnActive(id) {
     id.bath,
     id.crib,
     id.shower,
-    id.people
+    id.people,
+    hi.per,
+    sm.bungalow_colony,
+    ht.house_type,
+    smt.summer_time
     
     
     FROM house h
@@ -31,11 +36,20 @@ async function getHouseByIdUnActive(id) {
       USING (house_id)
     LEFT JOIN listings ls
       USING (house_id)
+
+    LEFT JOIN summer sm 
+      USING(house_id)
+
+    LEFT JOIN house_type ht
+      USING(house_type_id)
+
+    LEFT JOIN summer_time smt
+      USING(summer_time_id)
    
       
       WHERE house_id=? 
       `,
-      [id]
+      [id],
     );
   } else {
     [results] = await connection.query(
@@ -84,10 +98,13 @@ async function getHouseByIdUnActive(id) {
 
     JOIN lt_house_info lhi
       USING (house_id)
+
+    
+      
       
       WHERE house_id=? 
       `,
-      [id]
+      [id],
     );
   }
 
@@ -95,19 +112,19 @@ async function getHouseByIdUnActive(id) {
   const [results2] = await connection.query(
     `SELECT contact FROM contact_info WHERE house_id =?
     `,
-    [id]
+    [id],
   );
 
   const [results4] = await connection.query(
     `SELECT rental_type_selection_id AS rental_type FROM rental_type WHERE house_id =?
     `,
-    [id]
+    [id],
   );
 
   const [results3] = await connection.query(
     `SELECT CONCAT(?,picture) AS picture FROM pictures WHERE house_id =?
     `,
-    [location, id]
+    [location, id],
   );
 
   return {

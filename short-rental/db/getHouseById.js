@@ -11,17 +11,22 @@ async function getHouseById(id) {
    SELECT 
   house_id,
   h.is_lt,
+  h.is_sum,
   state,
   area,
   hi.description,
   hi.price,
+  hi.per,
   hi.from,
   hi.until,
   id.bed,
   id.bath,
   id.crib,
   id.shower,
-  id.people
+  id.people,
+  sm.bungalow_colony,
+  ht.house_type,
+  smt.summer_time
 
   
   
@@ -34,11 +39,19 @@ async function getHouseById(id) {
     USING (house_id)
   LEFT JOIN listings ls
     USING (house_id)
+
+  LEFT JOIN summer sm
+      USING(house_id)
+  
+  LEFT JOIN house_type ht
+      USING(house_type_id)
+  LEFT JOIN summer_time smt
+      USING(summer_time_id)
   
     
     WHERE house_id=? AND  active >= NOW()
     `,
-      [id]
+      [id],
     );
   } else {
     [results] = await connection.query(
@@ -83,20 +96,20 @@ async function getHouseById(id) {
      WHERE house_id=? AND  active >= NOW()
     
     `,
-      [id]
+      [id],
     );
   }
   if (results.length === 0) return null;
   const [results2] = await connection.query(
     `SELECT contact FROM contact_info WHERE house_id =?
     `,
-    [id]
+    [id],
   );
 
   const [results3] = await connection.query(
     `SELECT CONCAT(?,picture) AS picture FROM pictures WHERE house_id =?
     `,
-    [location, id]
+    [location, id],
   );
 
   await connection.query(
@@ -104,7 +117,7 @@ async function getHouseById(id) {
     UPDATE house SET views =views+1 WHERE house_id=?
     
     `,
-    [id]
+    [id],
   );
   return { ...results[0], contact: results2, pictures: results3 };
 }

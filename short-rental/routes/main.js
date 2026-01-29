@@ -24,6 +24,8 @@ import deleteHouseById from "../db/deleteHouseById.js";
 import getSelectLocations from "../db/getSelectLocations.js";
 import getHouseByLocationId from "../db/getHouseByLocationId.js";
 import getLtTypes from "../db/getLtTypes.js";
+import getHouseType from "../db/getHouseType.js";
+import getSummerTime from "../db/getSummerTime.js";
 
 const router = express.Router();
 router.use(
@@ -32,7 +34,7 @@ router.use(
     resave: false,
     saveUninitialized: false,
     cookie: { maxAge: 60000, secure: true, sameSite: "lax" },
-  })
+  }),
 );
 
 router.use(viesMiddleware);
@@ -47,11 +49,15 @@ router.get("/", async (req, res) => {
     return res.send(await getHouseByIdUnActive(req.query.newid));
   if (req.query.rentaltype && req.query.location)
     return res.send(
-      await getHouseByTypeLocation(req.query.rentaltype, req.query.location)
+      await getHouseByTypeLocation(req.query.rentaltype, req.query.location),
     );
   if (req.query.rentaltype)
     return res.send(
-      await getRentalType(req.query.rentaltype, req.query.pageNumber)
+      await getRentalType(
+        req.query.rentaltype,
+        req.query.pageNumber,
+        req.query.isSum,
+      ),
     );
   if (req.query.location) return res.send(await getHouseByArea(req.query));
   if (req.query.locationId)
@@ -94,6 +100,18 @@ router.get("/ltTypes", async (req, res) => {
 router.get("/account", authMiddleware, async (req, res) => {
   res.status(200).send(await getHouseByAccount(req.account_id));
   console.log(req.account_id);
+});
+
+router.get("/house_type", async (req, res) => {
+  res.send(await getHouseType());
+});
+
+router.get("/summer_time", async (req, res) => {
+  res.send(await getSummerTime());
+});
+
+router.get("/per", (req, res) => {
+  res.send(["Night", "Weekend"]);
 });
 
 router.post("/", authMiddleware, async (req, res) => {

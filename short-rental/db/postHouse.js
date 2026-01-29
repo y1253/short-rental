@@ -2,15 +2,15 @@ import connection from "./dbConnection.js";
 
 async function postHouse(post) {
   await connection.query("START TRANSACTION;");
-  const { account_id, isLt, area, state } = post;
+  const { account_id, isLt, isSum, area, state } = post;
 
   const [results] = await connection.query(
     `
     INSERT INTO 
     house
-    VALUES (default,?,?,?,?,0)
+    VALUES (default,?,?,?,?,?,0)
     `,
-    [account_id, isLt, area, state]
+    [account_id, isLt, isSum, area, state],
   );
 
   const { bed, bath, shower, people, crib } = post;
@@ -20,7 +20,7 @@ async function postHouse(post) {
     icon_details
     VALUES (default,(SELECT MAX(house_id) FROM house),?,?,?,?,?)
     `,
-    [bed, bath, shower, people, crib]
+    [bed, bath, shower, people, crib],
   );
 
   const { pictures } = post;
@@ -31,7 +31,7 @@ async function postHouse(post) {
         pictures
         VALUES (default,(SELECT MAX(house_id) FROM house),?)
         `,
-      [picture]
+      [picture],
     );
   }
 
@@ -43,19 +43,46 @@ async function postHouse(post) {
         contact_info
         VALUES (default,(SELECT MAX(house_id) FROM house),?)
         `,
-      [contact]
+      [contact],
     );
   }
 
-  if (!isLt) {
-    const { description, price, from, until } = post;
+  if (isLt) {
+    const { lt_type = 1, area_id, state, city, zip, address, apt } = post;
+    console.log(address);
+
+    await connection.query(
+      `
+      INSERT INTO lt_house VALUES(DEFAULT,(SELECT MAX(house_id) FROM house),?,?,?,?,?,?,? )
+      `,
+      [lt_type, area_id, state, city, zip, address, apt],
+    );
+
+    const { rent, contract_info, description, broker_name } = post;
+    await connection.query(
+      `
+      INSERT INTO lt_house_info VALUES (DEFAULT,(SELECT MAX(house_id) FROM house),?,?,?,?)
+      `,
+      [rent, contract_info, description, broker_name],
+    );
+  } else {
+    if (isSum) {
+      const { summer_time, house_type, bungalow_colony } = post;
+      await connection.query(
+        `
+      INSERT INTO summer VALUES (DEFAULT,(SELECT MAX(house_id) FROM house),?,?,?)
+      `,
+        [summer_time, house_type, bungalow_colony],
+      );
+    }
+    const { description, price, from, until, per } = post;
     await connection.query(
       `
     INSERT INTO 
     house_info
-    VALUES (default,(SELECT MAX(house_id) FROM house),?,?,?,?)
+    VALUES (default,(SELECT MAX(house_id) FROM house),?,?,?,?,?)
     `,
-      [description, price, from, until]
+      [description, price, from, until, per],
     );
 
     const { rental_type } = post;
@@ -66,33 +93,18 @@ async function postHouse(post) {
         rental_type
         VALUES (default,(SELECT MAX(house_id) FROM house),?)
         `,
-        [type]
+        [type],
       );
     }
-  } else {
-    const { lt_type=1,area_id, state, city, zip,address, apt } = post;
-    console.log(address);
-    
-    await connection.query(
-      `
-      INSERT INTO lt_house VALUES(DEFAULT,(SELECT MAX(house_id) FROM house),?,?,?,?,?,?,? )
-      `,
-      [lt_type,area_id, state, city, zip, address, apt]
-    );
-
-    const { rent, contract_info, description, broker_name } = post;
-    await connection.query(
-      `
-      INSERT INTO lt_house_info VALUES (DEFAULT,(SELECT MAX(house_id) FROM house),?,?,?,?)
-      `,
-      [rent, contract_info, description, broker_name]
-    );
   }
   await connection.query("COMMIT;");
 
-  await connection.query(`
+  await connection.query(
+    `
     INSERT INTO listings VALUES(DEFAULT,?,NOW(),NULL,NULL)
-    `,[results.insertId])
+    `,
+    [results.insertId],
+  );
 
   return results.insertId;
 }

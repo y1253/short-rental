@@ -2,7 +2,7 @@ import connection from "./dbConnection.js";
 import getHostLocation from "../functions/getHostLocation.js";
 import { pageSize } from "./getFullHouses.js";
 
-async function getHouseByArea({ location, pageNumber = 0, isLt }) {
+async function getHouseByArea({ location, pageNumber = 0, isLt, isSum }) {
   const finalResults = [];
   let results;
   if (isLt) {
@@ -49,13 +49,64 @@ async function getHouseByArea({ location, pageNumber = 0, isLt }) {
           
           
           `,
-      [location, pageNumber * pageSize, pageSize + 1]
+      [location, pageNumber * pageSize, pageSize + 1],
+    );
+  } else if (isSum) {
+    [results] = await connection.query(
+      `
+    SELECT 
+      
+      house_id,  
+      is_sum,
+      area,
+      state,
+      id.bed,
+      id.bath,
+      id.shower,
+      id.people,
+      id.crib,
+      hi.price,
+      hi.per,
+      sm.bungalow_colony,
+      ht.house_type,
+      smt.summer_time,
+      
+      
+      ls.active
+      
+    FROM house
+    
+    LEFT JOIN icon_details id 
+      USING (house_id)
+    LEFT JOIN listings ls
+      USING (house_id)
+
+    LEFT JOIN house_info hi
+      USING(house_id)
+    LEFT JOIN summer sm
+      USING(house_id)
+
+    LEFT JOIN house_type ht
+      USING(house_type_id)
+
+    LEFT JOIN summer_time smt
+      USING(summer_time_id)
+    
+    WHERE active >= NOW() AND area=? AND is_sum IS NOT NULL
+    ORDER BY house_id DESC
+
+   LIMIT ?,?
+    
+    
+    `,
+      [location, pageNumber * pageSize, pageSize + 1],
     );
   } else {
     [results] = await connection.query(
       `
     SELECT 
       house_id,  
+      is_sum,
       area,
       state,
       id.bed,
@@ -74,14 +125,14 @@ async function getHouseByArea({ location, pageNumber = 0, isLt }) {
     JOIN listings ls
       USING (house_id)
     
-    WHERE active >= NOW() AND area=?
+    WHERE active >= NOW() AND area=? AND is_sum IS NULL
     ORDER BY house_id DESC
 
    LIMIT ?,?
     
     
     `,
-      [location, pageNumber * pageSize, pageSize + 1]
+      [location, pageNumber * pageSize, pageSize + 1],
     );
   }
   for (let data of results) {
@@ -93,7 +144,7 @@ async function getHouseByArea({ location, pageNumber = 0, isLt }) {
     WHERE house_id= ?
     
     `,
-      [getHostLocation, data.house_id]
+      [getHostLocation, data.house_id],
     );
     finalResults.push({ ...data, pictures: resultsPictures });
   }
