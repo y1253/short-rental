@@ -2,6 +2,7 @@ import connection from "./dbConnection.js";
 
 async function postEditHouseById(post) {
   // await connection.query("START TRANSACTION;");
+  
 
   const { isSum, isLt, house_id } = post;
   if (isLt) {
@@ -40,24 +41,7 @@ async function postEditHouseById(post) {
       `,
       [house_id, price, contract_info, description, broker_name],
     );
-  } else if (isSum) {
-    if (isSum) {
-      const { summer_time, house_type, bungalow_colony } = post;
-      await connection.query(
-        `
-      DELETE FROM summer WHERE house_id=?
-      
-      `,
-        [house_id],
-      );
-      await connection.query(
-        `
-      INSERT INTO summer VALUES (DEFAULT,(SELECT MAX(house_id) FROM house),?,?,?)
-      `,
-        [summer_time, house_type, bungalow_colony],
-      );
-    }
-  } else {
+  }  else {
     const { house_id, area, state } = post;
 
     const [results] = await connection.query(
@@ -69,7 +53,25 @@ async function postEditHouseById(post) {
       [area, state, house_id],
     );
 
-    const { description, price, from, until } = post;
+    const { summer_time, house_type, bungalow_colony } = post;
+    if(house_type){
+      await connection.query(
+        `
+      DELETE FROM summer WHERE house_id=?
+      
+      `,
+        [house_id],
+      );
+      await connection.query(
+        `
+      INSERT INTO summer VALUES (DEFAULT,?,?,?,?)
+      `,
+        [house_id,summer_time, house_type, bungalow_colony],
+      );
+    }
+
+
+    const { description, price, from, until,per } = post;
     await connection.query(
       `
       DELETE FROM house_info WHERE house_id=?
@@ -82,12 +84,13 @@ async function postEditHouseById(post) {
       
       INSERT INTO 
       house_info
-      VALUES (default,?,?,?,?,?)
+      VALUES (default,?,?,?,?,?,?)
       `,
-      [house_id, description, price, from, until],
+      [house_id, description, price, from, until,per],
     );
 
-    const { rental_type } = post;
+    let { rental_type } = post;
+    if(rental_type){
     await connection.query(
       `
     DELETE FROM rental_type WHERE house_id=?
@@ -106,7 +109,7 @@ async function postEditHouseById(post) {
       );
     }
   }
-
+}
   const { bed, bath, shower, people, crib } = post;
   await connection.query(
     `
