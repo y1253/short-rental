@@ -26,6 +26,7 @@ import getHouseByLocationId from "../db/getHouseByLocationId.js";
 import getLtTypes from "../db/getLtTypes.js";
 import getHouseType from "../db/getHouseType.js";
 import getSummerTime from "../db/getSummerTime.js";
+import sms from "./sms.js";
 
 const router = express.Router();
 router.use(
@@ -42,6 +43,7 @@ router.use("/admin", admin);
 router.use("/users", users);
 router.use("/auth", auth);
 router.use("/promo_code", promoCode);
+router.use("/sms", sms);
 
 router.get("/", async (req, res) => {
   if (req.query.id) return res.send(await getHouseById(req.query.id));
