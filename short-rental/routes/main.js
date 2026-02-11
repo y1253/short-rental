@@ -27,6 +27,7 @@ import getLtTypes from "../db/getLtTypes.js";
 import getHouseType from "../db/getHouseType.js";
 import getSummerTime from "../db/getSummerTime.js";
 import sms from "./sms.js";
+import smsC from "./smsC.js"
 
 const router = express.Router();
 router.use(
@@ -39,11 +40,14 @@ router.use(
 );
 
 router.use(viesMiddleware);
+router.use(express.urlencoded({ extended: false }));  // Parses Twilio's form data
+router.use(express.json());
 router.use("/admin", admin);
 router.use("/users", users);
 router.use("/auth", auth);
 router.use("/promo_code", promoCode);
 router.use("/sms", sms);
+router.use("/smsc", smsC);
 
 router.get("/", async (req, res) => {
   if (req.query.id) return res.send(await getHouseById(req.query.id));
