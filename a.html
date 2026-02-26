@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QuickSend - Send Money via Text Message</title>
+  <meta name="description" content="The simplest way to send money to anyone. No internet required. Just text or call. Secure, fast, person-to-person payments for everyone." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f7f5f2;
+      --fg: #1a1d26;
+      --card: #ffffff;
+      --card-fg: #1a1d26;
+      --primary: #1a1d26;
+      --primary-fg: #f7f5f2;
+      --secondary: #eae6e0;
+      --secondary-fg: #1a1d26;
+      --muted: #d6d1ca;
+      --muted-fg: #5c5f6a;
+      --accent: #2e8b6e;
+      --accent-fg: #ffffff;
+      --border: #ddd8d1;
+      --radius: 0.625rem;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg);
+      color: var(--fg);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .font-display { font-family: 'DM Sans', system-ui, sans-serif; }
+
+    /* HEADER */
+    .header {
+      position: sticky; top: 0; z-index: 50;
+      border-bottom: 1px solid var(--border);
+      background: rgba(247, 245, 242, 0.92);
+      backdrop-filter: blur(12px);
+    }
+    .header-inner {
+      max-width: 72rem; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 1.5rem;
+    }
+    .header-logo { font-family: 'DM Sans', sans-serif; font-size: 1.25rem; font-weight: 700; color: var(--fg); text-decoration: none; }
+    .header-nav { display: flex; align-items: center; gap: 1.5rem; }
+    .header-nav a { font-size: 0.875rem; font-weight: 500; color: var(--muted-fg); text-decoration: none; transition: color 0.2s; }
+    .header-nav a:hover { color: var(--fg); }
+    .header-cta {
+      display: inline-flex; align-items: center;
+      background: var(--primary); color: var(--primary-fg);
+      padding: 0.625rem 1.25rem; border-radius: var(--radius);
+      font-size: 0.875rem; font-weight: 500; text-decoration: none; transition: opacity 0.2s;
+    }
+    .header-cta:hover { opacity: 0.9; }
+    .mobile-toggle { display: none; background: none; border: none; cursor: pointer; padding: 0.25rem; }
+    .mobile-toggle svg { width: 1.5rem; height: 1.5rem; color: var(--fg); }
+    .mobile-menu { display: none; border-top: 1px solid var(--border); background: var(--bg); padding: 1rem 1.5rem; }
+    .mobile-menu.open { display: flex; flex-direction: column; gap: 0.75rem; }
+    .mobile-menu a { font-size: 1rem; font-weight: 500; color: var(--muted-fg); text-decoration: none; }
+    .mobile-menu a:hover { color: var(--fg); }
+
+    @media (max-width: 768px) {
+      .header-nav, .header-cta { display: none; }
+      .mobile-toggle { display: block; }
+    }
+
+    /* HERO */
+    .hero { padding: 6rem 1.5rem; text-align: center; }
+    .hero-inner { max-width: 72rem; margin: 0 auto; }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      border: 1px solid var(--border); background: var(--card);
+      padding: 0.5rem 1rem; border-radius: 9999px;
+      font-size: 0.875rem; color: var(--muted-fg); margin-bottom: 1.5rem;
+    }
+    .hero-badge-dot { display: inline-block; width: 0.5rem; height: 0.5rem; border-radius: 50%; background: var(--accent); }
+    .hero h1 {
+      font-family: 'DM Sans', sans-serif; font-size: clamp(2.25rem, 5vw, 4.25rem);
+      font-weight: 700; line-height: 1.1; letter-spacing: -0.02em;
+      max-width: 56rem; margin: 0 auto; text-wrap: balance;
+    }
+    .hero h1 span { color: var(--accent); }
+    .hero p { margin-top: 1.5rem; max-width: 40rem; margin-left: auto; margin-right: auto; font-size: 1.125rem; color: var(--muted-fg); line-height: 1.7; }
+    .hero-buttons { margin-top: 2.5rem; display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; }
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: var(--primary); color: var(--primary-fg);
+      padding: 1rem 2rem; border-radius: var(--radius);
+      font-size: 1rem; font-weight: 500; text-decoration: none; transition: opacity 0.2s; border: none; cursor: pointer;
+    }
+    .btn-primary:hover { opacity: 0.9; }
+    .btn-outline {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: var(--card); color: var(--fg);
+      border: 1px solid var(--border);
+      padding: 1rem 2rem; border-radius: var(--radius);
+      font-size: 1rem; font-weight: 500; text-decoration: none; transition: background 0.2s;
+    }
+    .btn-outline:hover { background: var(--secondary); }
+
+    .hero-features { margin-top: 4rem; display: grid; grid-template-columns: 1fr; gap: 1rem; }
+    @media (min-width: 768px) { .hero-features { grid-template-columns: repeat(3, 1fr); } }
+    .feature-card {
+      display: flex; align-items: flex-start; gap: 1rem;
+      border: 1px solid var(--border); background: var(--card);
+      border-radius: 0.75rem; padding: 1.5rem;
+    }
+    .feature-icon {
+      flex-shrink: 0; width: 3rem; height: 3rem;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--secondary); border-radius: 0.5rem;
+    }
+    .feature-icon svg { width: 1.5rem; height: 1.5rem; color: var(--fg); }
+    .feature-card h3 { font-family: 'DM Sans', sans-serif; font-weight: 600; }
+    .feature-card p { margin-top: 0.25rem; font-size: 0.875rem; color: var(--muted-fg); line-height: 1.6; }
+
+    /* SECTIONS */
+    .section { padding: 6rem 1.5rem; }
+    .section-inner { max-width: 72rem; margin: 0 auto; }
+    .section-narrow { max-width: 48rem; margin: 0 auto; }
+    .section-title { font-family: 'DM Sans', sans-serif; font-size: clamp(1.75rem, 3.5vw, 3rem); font-weight: 700; letter-spacing: -0.02em; text-wrap: balance; }
+    .section-subtitle { margin-top: 1rem; font-size: 1.125rem; color: var(--muted-fg); max-width: 40rem; }
+    .text-center { text-align: center; }
+    .mx-auto { margin-left: auto; margin-right: auto; }
+
+    /* HOW IT WORKS */
+    .steps { margin-top: 4rem; display: flex; flex-direction: column; gap: 4rem; }
+    .step { display: flex; flex-direction: column; gap: 2rem; }
+    @media (min-width: 1024px) { .step { flex-direction: row; align-items: flex-start; gap: 4rem; } }
+    .step-content { flex: 1; }
+    .step-header { display: flex; align-items: center; gap: 1rem; }
+    .step-number {
+      flex-shrink: 0; width: 2.5rem; height: 2.5rem;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--primary); color: var(--primary-fg);
+      border-radius: 50%; font-size: 1.125rem; font-weight: 700;
+    }
+    .step-header h3 { font-family: 'DM Sans', sans-serif; font-size: 1.5rem; font-weight: 700; }
+    .step-content p { margin-top: 1rem; color: var(--muted-fg); line-height: 1.7; }
+    .step-preview { flex: 1; }
+
+    .preview-box { border: 1px solid var(--border); background: var(--card); border-radius: 0.75rem; padding: 1.5rem; }
+    .preview-label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted-fg); margin-bottom: 1rem; }
+
+    .sms-line { display: flex; margin-bottom: 0.75rem; }
+    .sms-line.sent { justify-content: flex-end; }
+    .sms-line.received { justify-content: flex-start; }
+    .sms-bubble {
+      max-width: 85%; padding: 0.75rem 1rem; border-radius: 0.75rem;
+      font-size: 0.875rem; line-height: 1.6; white-space: pre-line;
+    }
+    .sms-bubble.sent { background: var(--primary); color: var(--primary-fg); }
+    .sms-bubble.received { background: var(--secondary); color: var(--secondary-fg); }
+
+    .call-line { display: flex; align-items: flex-start; gap: 0.75rem; margin-bottom: 0.5rem; font-size: 0.875rem; }
+    .call-speaker {
+      flex-shrink: 0; padding: 0.125rem 0.5rem; border-radius: 0.25rem;
+      font-size: 0.75rem; font-weight: 600;
+    }
+    .call-speaker.system { background: var(--secondary); color: var(--secondary-fg); }
+    .call-speaker.user { background: var(--primary); color: var(--primary-fg); }
+    .call-text { line-height: 1.6; }
+
+    /* SECURITY */
+    .section-dark { background: var(--primary); color: var(--primary-fg); }
+    .section-dark .section-title { color: var(--primary-fg); }
+    .section-dark .section-subtitle { color: rgba(247,245,242,0.7); }
+    .security-grid { margin-top: 4rem; display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
+    @media (min-width: 768px) { .security-grid { grid-template-columns: repeat(2, 1fr); } }
+    .security-card {
+      border: 1px solid rgba(247,245,242,0.1);
+      background: rgba(247,245,242,0.05);
+      border-radius: 0.75rem; padding: 2rem;
+    }
+    .security-card svg { width: 2rem; height: 2rem; color: var(--accent); }
+    .security-card h3 { font-family: 'DM Sans', sans-serif; margin-top: 1rem; font-size: 1.25rem; font-weight: 600; color: var(--primary-fg); }
+    .security-card p { margin-top: 0.75rem; color: rgba(247,245,242,0.7); line-height: 1.7; }
+
+    /* FEES */
+    .fees-layout { display: flex; flex-direction: column; gap: 4rem; }
+    @media (min-width: 1024px) { .fees-layout { flex-direction: row; align-items: flex-start; } }
+    .fees-text { flex: 1; }
+    .fees-text h2 { font-family: 'DM Sans', sans-serif; font-size: clamp(1.75rem, 3.5vw, 3rem); font-weight: 700; text-wrap: balance; }
+    .fees-text > p { margin-top: 1rem; font-size: 1.125rem; color: var(--muted-fg); line-height: 1.7; }
+    .fees-checks { margin-top: 2rem; display: flex; flex-direction: column; gap: 1rem; }
+    .check-item { display: flex; align-items: flex-start; gap: 0.75rem; }
+    .check-icon {
+      flex-shrink: 0; margin-top: 0.125rem;
+      width: 1.25rem; height: 1.25rem;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--accent); color: var(--accent-fg);
+      border-radius: 50%; font-size: 0.7rem; font-weight: 700;
+    }
+
+    .fees-table { flex: 1; }
+    .fees-box { border: 1px solid var(--border); background: var(--card); border-radius: 0.75rem; padding: 2rem; }
+    .fees-box h3 { font-family: 'DM Sans', sans-serif; font-size: 1.125rem; font-weight: 600; }
+    .fee-header, .fee-row { display: flex; padding: 0.75rem 0; border-bottom: 1px solid var(--border); }
+    .fee-header { font-size: 0.875rem; font-weight: 500; color: var(--muted-fg); }
+    .fee-row { font-size: 1rem; }
+    .fee-col-1 { flex: 1; }
+    .fee-col-2 { width: 5.5rem; text-align: right; color: var(--muted-fg); }
+    .fee-col-3 { width: 7rem; text-align: right; font-weight: 500; }
+    .fees-box > p { margin-top: 1.5rem; font-size: 0.875rem; color: var(--muted-fg); line-height: 1.6; }
+
+    /* COMMANDS */
+    .section-alt { background: var(--secondary); }
+    .commands-grid { margin-top: 3rem; display: grid; grid-template-columns: 1fr; gap: 1rem; }
+    @media (min-width: 768px) { .commands-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 1024px) { .commands-grid { grid-template-columns: repeat(3, 1fr); } }
+    .command-card { border: 1px solid var(--border); background: var(--card); border-radius: 0.75rem; padding: 1.5rem; }
+    .command-code { display: inline-block; background: var(--primary); color: var(--primary-fg); padding: 0.25rem 0.75rem; border-radius: 0.25rem; font-size: 0.875rem; font-weight: 500; font-family: monospace; }
+    .command-card p { margin-top: 1rem; }
+    .command-card .example { margin-top: 0.5rem; font-size: 0.875rem; color: var(--muted-fg); }
+    .command-card .example code { background: var(--secondary); padding: 0.125rem 0.375rem; border-radius: 0.25rem; font-size: 0.875rem; }
+
+    /* FAQ */
+    .faq-list { margin-top: 3rem; }
+    .faq-item { border-bottom: 1px solid var(--border); }
+    .faq-question {
+      width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+      padding: 1.5rem 0; background: none; border: none; cursor: pointer;
+      text-align: left; font-size: 1rem; font-weight: 500; color: var(--fg);
+    }
+    .faq-question:hover { color: var(--accent); }
+    .faq-arrow { flex-shrink: 0; width: 1.25rem; height: 1.25rem; color: var(--muted-fg); transition: transform 0.2s; }
+    .faq-item.open .faq-arrow { transform: rotate(180deg); }
+    .faq-answer { display: none; padding-bottom: 1.5rem; color: var(--muted-fg); line-height: 1.7; }
+    .faq-item.open .faq-answer { display: block; }
+
+    /* TERMS / PRIVACY */
+    .legal-content { margin-top: 2.5rem; display: flex; flex-direction: column; gap: 2rem; }
+    .legal-content h3 { font-family: 'DM Sans', sans-serif; font-size: 1.125rem; font-weight: 600; }
+    .legal-content p { margin-top: 0.5rem; color: var(--muted-fg); line-height: 1.7; }
+    .legal-date { margin-top: 0.5rem; font-size: 0.875rem; color: var(--muted-fg); }
+
+    /* FOOTER */
+    .footer { border-top: 1px solid var(--border); background: var(--primary); padding: 4rem 1.5rem; }
+    .footer-inner { max-width: 72rem; margin: 0 auto; }
+    .footer-grid { display: grid; grid-template-columns: 1fr; gap: 3rem; }
+    @media (min-width: 768px) { .footer-grid { grid-template-columns: 1fr 1fr 1fr; } }
+    .footer h3 { font-family: 'DM Sans', sans-serif; font-size: 1.25rem; font-weight: 700; color: var(--primary-fg); }
+    .footer p { margin-top: 0.75rem; font-size: 0.875rem; color: rgba(247,245,242,0.7); line-height: 1.7; }
+    .footer h4 { font-family: 'DM Sans', sans-serif; font-size: 0.875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--primary-fg); }
+    .footer-links { margin-top: 1rem; display: flex; flex-direction: column; gap: 0.5rem; }
+    .footer-links a { font-size: 0.875rem; color: rgba(247,245,242,0.7); text-decoration: none; transition: color 0.2s; }
+    .footer-links a:hover { color: var(--primary-fg); }
+    .footer-contact { margin-top: 1rem; display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.875rem; color: rgba(247,245,242,0.7); }
+    .footer-contact strong { font-weight: 500; color: var(--primary-fg); }
+    .footer-disclaimer {
+      margin-top: 1.5rem; border: 1px solid rgba(247,245,242,0.1);
+      background: rgba(247,245,242,0.05); border-radius: 0.5rem; padding: 1rem;
+      font-size: 0.75rem; color: rgba(247,245,242,0.5); line-height: 1.6;
+    }
+    .footer-bottom {
+      margin-top: 3rem; border-top: 1px solid rgba(247,245,242,0.1);
+      padding-top: 2rem; display: flex; flex-direction: column; align-items: center; gap: 1rem;
+    }
+    @media (min-width: 768px) { .footer-bottom { flex-direction: row; justify-content: space-between; } }
+    .footer-bottom p { font-size: 0.75rem; color: rgba(247,245,242,0.5); }
+    .footer-bottom-links { display: flex; gap: 1.5rem; }
+    .footer-bottom-links a { font-size: 0.75rem; color: rgba(247,245,242,0.5); text-decoration: none; }
+    .footer-bottom-links a:hover { color: rgba(247,245,242,0.8); }
+    .footer-sms-disclosure {
+      margin-top: 2rem; background: rgba(247,245,242,0.05);
+      border-radius: 0.5rem; padding: 1rem; text-align: center;
+      font-size: 0.75rem; color: rgba(247,245,242,0.5); line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-inner">
+    <a href="#" class="header-logo">QuickSend</a>
+    <nav class="header-nav" aria-label="Main navigation">
+      <a href="#how-it-works">How It Works</a>
+      <a href="#security">Security</a>
+      <a href="#fees">Fees</a>
+      <a href="#commands">Commands</a>
+      <a href="#faq">FAQ</a>
+      <a href="#terms">Terms</a>
+      <a href="#privacy">Privacy</a>
+    </nav>
+    <a href="#contact" class="header-cta">Get Started</a>
+    <button class="mobile-toggle" onclick="toggleMenu()" aria-label="Toggle menu">
+      <svg id="menu-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      <svg id="close-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="display:none"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="mobile-menu" id="mobile-menu">
+    <a href="#how-it-works" onclick="closeMenu()">How It Works</a>
+    <a href="#security" onclick="closeMenu()">Security</a>
+    <a href="#fees" onclick="closeMenu()">Fees</a>
+    <a href="#commands" onclick="closeMenu()">Commands</a>
+    <a href="#faq" onclick="closeMenu()">FAQ</a>
+    <a href="#terms" onclick="closeMenu()">Terms</a>
+    <a href="#privacy" onclick="closeMenu()">Privacy</a>
+    <a href="#contact" class="btn-primary" style="text-align:center;justify-content:center;margin-top:0.5rem" onclick="closeMenu()">Get Started</a>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge">
+      <span class="hero-badge-dot"></span>
+      No Internet Required
+    </div>
+
+    <h1>Send Money with a <span>Text Message</span></h1>
+
+    <p>The simplest way to transfer money person-to-person. No apps, no internet, no smartphone needed. Just text or call from any phone.</p>
+
+    <div class="hero-buttons">
+      <a href="#how-it-works" class="btn-primary">Learn How It Works</a>
+      <a href="#contact" class="btn-outline">Contact Us</a>
+    </div>
+
+    <div class="hero-features">
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        </div>
+        <div>
+          <h3 class="font-display">SMS Transfers</h3>
+          <p>Send money by texting a simple command. Works on any phone with texting.</p>
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+        </div>
+        <div>
+          <h3 class="font-display">Voice Call Support</h3>
+          <p>Call our number and use your keypad. Works on every phone, including landlines.</p>
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+        </div>
+        <div>
+          <h3 class="font-display">Bank-Level Security</h3>
+          <p>Sensitive data is entered via secure phone keypad. Your information is never stored in plain text.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how-it-works" class="section">
+  <div class="section-inner">
+    <div class="text-center">
+      <h2 class="section-title">How It Works</h2>
+      <p class="section-subtitle mx-auto">Three simple steps. No internet, no app, no smartphone required.</p>
+    </div>
+
+    <div class="steps">
+      <!-- Step 1 -->
+      <div class="step">
+        <div class="step-content">
+          <div class="step-header">
+            <span class="step-number">1</span>
+            <h3 class="font-display">Register by Phone</h3>
+          </div>
+          <p>Call our number <strong>(332) 333-3055</strong> and use your keypad to securely enter your name, email, and bank information. You only need to do this once. Your bank details are entered via phone keypad for maximum security -- never sent as a text message.</p>
+        </div>
+        <div class="step-preview">
+          <div class="preview-box">
+            <div class="preview-label">Phone Call Preview</div>
+            <div class="call-line"><span class="call-speaker system">System</span><span class="call-text">Welcome to QuickSend. Press 1 to register.</span></div>
+            <div class="call-line"><span class="call-speaker user">You</span><span class="call-text">Press 1</span></div>
+            <div class="call-line"><span class="call-speaker system">System</span><span class="call-text">Enter your 9-digit routing number followed by pound.</span></div>
+            <div class="call-line"><span class="call-speaker user">You</span><span class="call-text">Enter 021000021#</span></div>
+            <div class="call-line"><span class="call-speaker system">System</span><span class="call-text">Enter your account number followed by pound.</span></div>
+            <div class="call-line"><span class="call-speaker user">You</span><span class="call-text">Enter 1234567890#</span></div>
+            <div class="call-line"><span class="call-speaker system">System</span><span class="call-text">Your account is linked. You can now send money via text.</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="step">
+        <div class="step-content">
+          <div class="step-header">
+            <span class="step-number">2</span>
+            <h3 class="font-display">Send Money via Text</h3>
+          </div>
+          <p>Text a simple command to <strong>(332) 333-3055</strong> with the amount and the recipient's phone number or email. We will confirm the transfer details and fee before processing.</p>
+        </div>
+        <div class="step-preview">
+          <div class="preview-box">
+            <div class="preview-label">Text Message Preview</div>
+            <div class="sms-line sent"><div class="sms-bubble sent">SEND 100 TO 555-123-4567</div></div>
+            <div class="sms-line received"><div class="sms-bubble received">Send $100.00 to 555-123-4567?
+Fee: $0.50 | Total: $100.50
+Reply YES to confirm.</div></div>
+            <div class="sms-line sent"><div class="sms-bubble sent">YES</div></div>
+            <div class="sms-line received"><div class="sms-bubble received">Confirmed! $100.50 will be debited from your bank. Ref: TXN-283747</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="step">
+        <div class="step-content">
+          <div class="step-header">
+            <span class="step-number">3</span>
+            <h3 class="font-display">Recipient Gets Notified</h3>
+          </div>
+          <p>The recipient receives an instant text notification. If they are already registered, the money goes straight to their bank. If not, they receive instructions to register and claim the payment.</p>
+        </div>
+        <div class="step-preview">
+          <div class="preview-box">
+            <div class="preview-label">Text Message Preview</div>
+            <div class="sms-line received"><div class="sms-bubble received">John Doe sent you $100.00 via QuickSend! It will arrive in your bank in 1-2 business days.</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECURITY -->
+<section id="security" class="section section-dark">
+  <div class="section-inner">
+    <div class="text-center">
+      <h2 class="section-title">Your Security Is Our Priority</h2>
+      <p class="section-subtitle mx-auto">We use the same security standards as major banks and financial institutions to protect your money and personal information.</p>
+    </div>
+
+    <div class="security-grid">
+      <div class="security-card">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
+        <h3>Keypad Entry for Bank Data</h3>
+        <p>Your bank account and routing numbers are entered via phone keypad (DTMF tones), the same technology used by banks worldwide. This data is never sent as a text message and never stored on your phone.</p>
+      </div>
+
+      <div class="security-card">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+        <h3>Encrypted &amp; Tokenized</h3>
+        <p>Your bank account information is securely tokenized by our payment partner, a federally regulated financial institution. We never store raw bank account numbers on our servers.</p>
+      </div>
+
+      <div class="security-card">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+        <h3>Identity Verification</h3>
+        <p>As required by federal law (BSA/AML), we verify the identity of every user before they can send or receive money. This protects you and the community from fraud.</p>
+      </div>
+
+      <div class="security-card">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+        <h3>Federally Regulated</h3>
+        <p>All money transfers are processed through licensed, federally regulated financial institutions. We comply with all applicable FinCEN, BSA, and AML regulations.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEES -->
+<section id="fees" class="section">
+  <div class="section-inner">
+    <div class="fees-layout">
+      <div class="fees-text">
+        <h2>Simple, Transparent Pricing</h2>
+        <p>We charge a flat 0.5% fee on every transfer. No hidden costs, no monthly fees, no minimum balance. You only pay when you send money.</p>
+
+        <div class="fees-checks">
+          <div class="check-item"><span class="check-icon">&#10003;</span><span>No monthly fees or subscription</span></div>
+          <div class="check-item"><span class="check-icon">&#10003;</span><span>No cost to receive money</span></div>
+          <div class="check-item"><span class="check-icon">&#10003;</span><span>No cost to register</span></div>
+          <div class="check-item"><span class="check-icon">&#10003;</span><span>Free SMS notifications</span></div>
+        </div>
+      </div>
+
+      <div class="fees-table">
+        <div class="fees-box">
+          <h3 class="font-display">Fee Examples</h3>
+          <div style="margin-top:1.5rem">
+            <div class="fee-header">
+              <span class="fee-col-1">You Send</span>
+              <span class="fee-col-2">Fee (0.5%)</span>
+              <span class="fee-col-3">Total Charged</span>
+            </div>
+            <div class="fee-row"><span class="fee-col-1" style="font-weight:500">$50.00</span><span class="fee-col-2">$0.25</span><span class="fee-col-3">$50.25</span></div>
+            <div class="fee-row"><span class="fee-col-1" style="font-weight:500">$100.00</span><span class="fee-col-2">$0.50</span><span class="fee-col-3">$100.50</span></div>
+            <div class="fee-row"><span class="fee-col-1" style="font-weight:500">$500.00</span><span class="fee-col-2">$2.50</span><span class="fee-col-3">$502.50</span></div>
+            <div class="fee-row"><span class="fee-col-1" style="font-weight:500">$1,000.00</span><span class="fee-col-2">$5.00</span><span class="fee-col-3">$1,005.00</span></div>
+          </div>
+          <p>The recipient always receives the full amount. The fee is added to the total charged to the sender.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COMMANDS -->
+<section id="commands" class="section section-alt">
+  <div class="section-inner">
+    <div class="text-center">
+      <h2 class="section-title">SMS Commands</h2>
+      <p class="section-subtitle mx-auto">Text any of these commands to <strong>(332) 333-3055</strong> to manage your transfers.</p>
+    </div>
+
+    <div class="commands-grid">
+      <div class="command-card">
+        <span class="command-code">SEND [amount] TO [phone or email]</span>
+        <p>Send money to another person</p>
+        <p class="example">Example: <code>SEND 100 TO 555-123-4567</code></p>
+      </div>
+      <div class="command-card">
+        <span class="command-code">HISTORY</span>
+        <p>View your recent transactions</p>
+        <p class="example">Example: <code>HISTORY</code></p>
+      </div>
+      <div class="command-card">
+        <span class="command-code">STATUS [ref number]</span>
+        <p>Check the status of a specific transfer</p>
+        <p class="example">Example: <code>STATUS TXN-283747</code></p>
+      </div>
+      <div class="command-card">
+        <span class="command-code">HELP</span>
+        <p>Get a list of all available commands</p>
+        <p class="example">Example: <code>HELP</code></p>
+      </div>
+      <div class="command-card">
+        <span class="command-code">STOP</span>
+        <p>Opt out of all SMS messages (disables account)</p>
+        <p class="example">Example: <code>STOP</code></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq" class="section">
+  <div class="section-narrow">
+    <div class="text-center">
+      <h2 class="section-title">Frequently Asked Questions</h2>
+      <p class="section-subtitle mx-auto">Everything you need to know about using QuickSend.</p>
+    </div>
+
+    <div class="faq-list">
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          Do I need a smartphone or internet connection?
+          <svg class="faq-arrow" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="faq-answer">No. QuickSend works with any phone that can send text messages or make phone calls. This includes basic phones, kosher phones, flip phones, and even landlines (for voice registration). No internet connection is required at any point.</div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          How do I register?
+          <svg class="faq-arrow" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="faq-answer">Call (332) 333-3055 and follow the voice prompts. You will enter your name, email, date of birth, and bank account information using your phone keypad. Registration takes about 2 minutes and you only need to do it once.</div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          How do I send money?
+          <svg class="faq-arrow" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="faq-answer">After registering, text (332) 333-3055 with a command like "SEND 100 TO 555-123-4567" where 100 is the dollar amount and the number is the recipient's phone. You will receive a confirmation text with the amount and fee, and you reply YES to approve.</div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          How long does a transfer take?
+          <svg class="faq-arrow" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="faq-answer">The recipient is notified immediately via text message. The actual bank transfer typically settles within 1-2 business days via ACH. The recipient will see the funds appear in their bank account once settled.</div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          What if the recipient is not registered?
+          <svg class="faq-arrow" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="faq-answer">They will receive a text message notifying them that someone wants to send them money, along with instructions to register by calling (332) 333-3055. Once they register and link their bank account, the transfer will be processed. If they do not register within 14 days, the transfer is canceled and you are not charged.</div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          Is my bank information safe?
+          <svg class="faq-arrow" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="faq-answer">Yes. Your bank account and routing numbers are entered via phone keypad, not text message. This data is securely tokenized by our federally regulated payment partner and is never stored in plain text on our servers. We use the same security standards as major banks.</div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          What does it cost?
+          <svg class="faq-arrow" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="faq-answer">We charge a flat 0.5% fee on each transfer, added to the amount you send. For example, sending $100 costs you $100.50. There are no monthly fees, no registration fees, and no fees to receive money.</div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          What are the transfer limits?
+          <svg class="faq-arrow" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="faq-answer">For new accounts, the daily limit is $1,000 and the monthly limit is $5,000. These limits may be increased after identity verification and account history review. Contact us for higher limits.</div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          Can I send money to someone with a different bank?
+          <svg class="faq-arrow" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="faq-answer">Yes. QuickSend works with any US bank account. The sender and recipient can have accounts at different banks.</div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          How do I check my transfer status?
+          <svg class="faq-arrow" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="faq-answer">Text the word "HISTORY" to (332) 333-3055, and you will receive a list of your recent transactions with their current status.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TERMS OF SERVICE -->
+<section id="terms" class="section">
+  <div class="section-narrow">
+    <h2 class="section-title font-display">Terms of Service</h2>
+    <p class="legal-date">Last updated: February 2026</p>
+
+    <div class="legal-content">
+      <div>
+        <h3>1. Service Description</h3>
+        <p>QuickSend provides a person-to-person money transfer service accessible via SMS text messaging and telephone voice calls. The service allows registered users to send money from their linked bank account to another registered user's bank account. All money transfers are processed through our licensed payment processing partner.</p>
+      </div>
+      <div>
+        <h3>2. Eligibility</h3>
+        <p>You must be at least 18 years of age and a legal resident of the United States to use QuickSend. You must have a valid US bank account and a phone number capable of receiving SMS messages or making voice calls. By registering, you confirm that you meet these eligibility requirements.</p>
+      </div>
+      <div>
+        <h3>3. Registration and Identity Verification</h3>
+        <p>As required by federal law (Bank Secrecy Act and Anti-Money Laundering regulations), we must verify the identity of every user. During registration, you will be asked to provide your full legal name, date of birth, email address, the last four digits of your Social Security Number, and your bank account information. This information is used solely for identity verification and payment processing. We reserve the right to refuse service to anyone who cannot be satisfactorily verified.</p>
+      </div>
+      <div>
+        <h3>4. Fees</h3>
+        <p>A fee of 0.5% of the transfer amount is charged to the sender for each transaction. This fee is added to the transfer amount and deducted from the sender's bank account along with the transfer amount. There are no monthly fees, registration fees, or fees to receive money. We reserve the right to change our fee structure with 30 days written notice to all registered users.</p>
+      </div>
+      <div>
+        <h3>5. Transfer Limits</h3>
+        <p>Daily transfer limit: $1,000 per day. Monthly transfer limit: $5,000 per month. These limits apply to the total amount sent, not including fees. Limits may be adjusted based on account history and verification status. Contact us to request limit increases.</p>
+      </div>
+      <div>
+        <h3>6. Transfer Processing</h3>
+        <p>Transfers are initiated when the sender confirms the transaction via SMS. Funds are transferred via ACH (Automated Clearing House) and typically settle within 1-2 business days. The recipient is notified immediately via SMS, but funds may not appear in their bank account until the transfer settles. If the recipient is not registered, the transfer will be held for up to 14 days. If the recipient does not register within that period, the transfer is canceled and no funds are deducted from the sender.</p>
+      </div>
+      <div>
+        <h3>7. Cancellations and Refunds</h3>
+        <p>Once a transfer is confirmed and processing has begun, it cannot be canceled by the sender. If a transfer fails due to insufficient funds or a bank rejection, the sender will be notified and no fee will be charged. If you believe a transfer was made in error or without your authorization, contact us immediately.</p>
+      </div>
+      <div>
+        <h3>8. Prohibited Uses</h3>
+        <p>QuickSend may not be used for any illegal activity, money laundering, terrorist financing, fraud, or any other unlawful purpose. We monitor transactions as required by law and report suspicious activity to the appropriate authorities. Violation of this policy will result in immediate account termination and may be reported to law enforcement.</p>
+      </div>
+      <div>
+        <h3>9. SMS Consent and Communication</h3>
+        <p>By registering for QuickSend, you expressly consent to receive transactional SMS messages related to your account and transfers. These messages include: transfer confirmations, transfer notifications, registration prompts, security alerts, and transaction status updates. Message frequency varies based on usage. Message and data rates may apply depending on your phone plan. You may opt out at any time by texting STOP, but doing so will prevent you from using the service. For help, text HELP or contact us at (332) 333-3055.</p>
+      </div>
+      <div>
+        <h3>10. Limitation of Liability</h3>
+        <p>QuickSend facilitates transfers between bank accounts through licensed payment processors. We are not a bank and do not hold your funds at any point. We are not liable for delays caused by banking systems, ACH processing, or circumstances beyond our control. Our total liability to you for any claim arising from the use of our service is limited to the fees you have paid to us in the 12 months prior to the claim.</p>
+      </div>
+      <div>
+        <h3>11. Modifications</h3>
+        <p>We reserve the right to modify these terms at any time. Changes will be communicated via SMS to all registered users at least 30 days before taking effect. Continued use of the service after changes take effect constitutes acceptance of the modified terms.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRIVACY POLICY -->
+<section id="privacy" class="section section-alt">
+  <div class="section-narrow">
+    <h2 class="section-title font-display">Privacy Policy</h2>
+    <p class="legal-date">Last updated: February 2026</p>
+
+    <div class="legal-content">
+      <div>
+        <h3>Information We Collect</h3>
+        <p>We collect the following personal information during registration: full legal name, email address, phone number, date of birth, the last four digits of your Social Security Number, and bank account and routing numbers. We also collect transaction data including transfer amounts, recipient information, timestamps, and transaction status.</p>
+      </div>
+      <div>
+        <h3>How We Use Your Information</h3>
+        <p>Your personal information is used to: verify your identity as required by federal law, process money transfers, send transactional SMS notifications, prevent fraud and unauthorized transactions, comply with legal and regulatory requirements, and improve our service. We do not use your information for marketing purposes. We do not sell, rent, or share your personal information with third parties for their own marketing purposes.</p>
+      </div>
+      <div>
+        <h3>How We Protect Your Information</h3>
+        <p>Bank account and routing numbers are collected via secure phone keypad entry (DTMF) and are immediately tokenized by our payment processing partner. We do not store raw bank account numbers on our servers. All data transmissions are encrypted. Access to personal information is restricted to authorized personnel only. We maintain a comprehensive information security program in accordance with industry standards.</p>
+      </div>
+      <div>
+        <h3>Information Sharing</h3>
+        <p>We share your information only with: our licensed payment processing partner (for the purpose of processing transfers), identity verification services (for KYC compliance), and law enforcement or regulatory agencies (when required by law or to report suspicious activity). When you send money to another user, the recipient will see your name and the transfer amount, but not your bank account details.</p>
+      </div>
+      <div>
+        <h3>Data Retention</h3>
+        <p>We retain your personal information and transaction records for as long as your account is active and for a minimum of 5 years after account closure, as required by federal regulation (Bank Secrecy Act). You may request deletion of your account at any time by contacting us, subject to our legal retention requirements.</p>
+      </div>
+      <div>
+        <h3>Your Rights</h3>
+        <p>You have the right to: access the personal information we hold about you, request correction of inaccurate information, request deletion of your account (subject to legal retention requirements), and opt out of SMS communications (which will disable your account). To exercise these rights, contact us using the information below.</p>
+      </div>
+      <div>
+        <h3>SMS Communications</h3>
+        <p>By registering, you consent to receive transactional SMS messages. These are not marketing messages. They include transfer confirmations, payment notifications, registration instructions, and security alerts. You can opt out by texting STOP at any time. Message and data rates may apply. Message frequency depends on your usage of the service.</p>
+      </div>
+      <div>
+        <h3>Contact Us</h3>
+        <p>If you have questions about this Privacy Policy or wish to exercise your rights, contact us at (332) 333-3055 or email yechiel1253@gmail.com.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer id="contact" class="footer">
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div>
+        <h3 class="font-display">QuickSend</h3>
+        <p>Person-to-person money transfers via text message and phone call. No internet required. Serving our community with secure, simple payment solutions.</p>
+      </div>
+
+      <div>
+        <h4>Quick Links</h4>
+        <div class="footer-links">
+          <a href="#how-it-works">How It Works</a>
+          <a href="#security">Security</a>
+          <a href="#fees">Fees</a>
+          <a href="#faq">FAQ</a>
+          <a href="#terms">Terms of Service</a>
+          <a href="#privacy">Privacy Policy</a>
+        </div>
+      </div>
+
+      <div>
+        <h4>Contact</h4>
+        <div class="footer-contact">
+          <p><strong>Phone: </strong>(332) 333-3055</p>
+          <p><strong>Email: </strong>yechiel1253@gmail.com</p>
+          <p><strong>Text: </strong>Send HELP to (332) 333-3055 for support</p>
+        </div>
+        <div class="footer-disclaimer">
+          QuickSend is a payment facilitator operating under the regulatory framework of its licensed payment processing partners. QuickSend is not a bank. Money transfers are processed via ACH through federally regulated financial institutions.
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>2026 QuickSend. All rights reserved.</p>
+      <div class="footer-bottom-links">
+        <a href="#terms">Terms of Service</a>
+        <a href="#privacy">Privacy Policy</a>
+      </div>
+    </div>
+
+    <div class="footer-sms-disclosure">
+      By using QuickSend, you consent to receive transactional SMS messages. Message and data rates may apply. Message frequency varies. Text STOP to opt out. Text HELP for help. Carriers are not liable for delayed or undelivered messages.
+    </div>
+  </div>
+</footer>
+
+<script>
+  function toggleMenu() {
+    var menu = document.getElementById('mobile-menu');
+    var menuIcon = document.getElementById('menu-icon');
+    var closeIcon = document.getElementById('close-icon');
+    var isOpen = menu.classList.contains('open');
+    if (isOpen) {
+      menu.classList.remove('open');
+      menuIcon.style.display = '';
+      closeIcon.style.display = 'none';
+    } else {
+      menu.classList.add('open');
+      menuIcon.style.display = 'none';
+      closeIcon.style.display = '';
+    }
+  }
+
+  function closeMenu() {
+    var menu = document.getElementById('mobile-menu');
+    var menuIcon = document.getElementById('menu-icon');
+    var closeIcon = document.getElementById('close-icon');
+    menu.classList.remove('open');
+    menuIcon.style.display = '';
+    closeIcon.style.display = 'none';
+  }
+
+  function toggleFaq(btn) {
+    var item = btn.parentElement;
+    var wasOpen = item.classList.contains('open');
+    // Close all
+    var allItems = document.querySelectorAll('.faq-item');
+    for (var i = 0; i < allItems.length; i++) {
+      allItems[i].classList.remove('open');
+    }
+    // Toggle clicked
+    if (!wasOpen) {
+      item.classList.add('open');
+    }
+  }
+</script>
+
+</body>
+</html>
+

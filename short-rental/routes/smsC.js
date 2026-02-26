@@ -1,5 +1,6 @@
 import express from "express";
 import postSms from "../db/smsPOSTnewSms.js";
+import getUniqeSms from "../db/smsGETuniqe.js";
 const router = express.Router();
 
 
@@ -178,6 +179,13 @@ async function processMessage(body) {
     return getHelpMessage();
   }
 
+  if(input==="ADMINNEW"){
+    const resp= await getUniqeSms()
+    console.log(resp);
+    
+    return resp[0]['count( distinct phone)'].toString()
+  }
+
   if(input.length>10){
     return "Please send a ticker symbol (e.g. BTC, AAPL). Text HELP for more info.";
   }
@@ -262,8 +270,9 @@ router.post("/", async (req, res) => {
     addLog("reply", `Reply to ${from}: "${reply.substring(0, 100)}..."`);
 
     // Return plain text -- Macrodroid reads this and sends it as SMS
-    res.type("text/plain").send(reply);
     await postSms(req.query[' number'],body);
+    res.type("text/plain").send(reply);
+    
   } catch (err) {
     addLog("critical", `POST ERROR: ${err.message}`);
     res.type("text/plain").send("Error fetching price. Try again.");

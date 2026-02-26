@@ -28,6 +28,7 @@ import getHouseType from "../db/getHouseType.js";
 import getSummerTime from "../db/getSummerTime.js";
 import sms from "./sms.js";
 import smsC from "./smsC.js"
+import qb from './quickbooks.js'
 
 const router = express.Router();
 router.use(
@@ -48,6 +49,7 @@ router.use("/auth", auth);
 router.use("/promo_code", promoCode);
 router.use("/sms", sms);
 router.use("/smsc", smsC);
+router.use('/qb',qb);
 
 router.get("/", async (req, res) => {
   if (req.query.id) return res.send(await getHouseById(req.query.id));
