@@ -1,3 +1,6 @@
+
+import "dotenv/config";
+
 import express from "express";
 import { google } from "googleapis";
 import { PubSub } from "@google-cloud/pubsub";
@@ -5,17 +8,40 @@ import postSms from "../db/smsPOSTnewSms.js";
 import getUniqeSms from "../db/smsGETuniqe.js";
 
 const router = express.Router();
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 // ─── Pub/Sub Config ──────────────────────────────────────
 const GOOGLE_PROJECT_ID = process.env.GOOGLE_PROJECT_ID || "";
+const GOOGLE_SERVICE_ACCOUNT = process.env.GOOGLE_SERVICE_ACCOUNT || ""; // JSON string
 const PUBSUB_TOPIC = "gmail-push";
 const PUBSUB_SUBSCRIPTION = "gmail-push-sub";
-const WEBHOOK_URL = "https://ygbackend.com/gmail-webhook";
+const WEBHOOK_URL = "https://ygbackend.com/short_rental/gmail/gmail-webhook";
+
+// Parse service account credentials
+function getCredentials() {
+  if (GOOGLE_SERVICE_ACCOUNT) {
+    try {
+      return JSON.parse(GOOGLE_SERVICE_ACCOUNT);
+    } catch (err) {
+      console.error("[pubsub] Failed to parse GOOGLE_SERVICE_ACCOUNT JSON");
+      return null;
+    }
+  }
+  return null;
+}
 
 // ─── Setup Pub/Sub (run once) ────────────────────────────
 async function setupPubSub() {
   try {
-    const pubsub = new PubSub({ projectId: GOOGLE_PROJECT_ID });
+    const credentials = getCredentials();
+    if (!credentials) {
+      throw new Error("GOOGLE_SERVICE_ACCOUNT env variable not set or invalid JSON");
+    }
+
+    const pubsub = new PubSub({ 
+      projectId: GOOGLE_PROJECT_ID,
+      credentials: credentials
+    });
 
     // 1. Create topic (or get existing)
     let topic;
@@ -38,14 +64,9 @@ async function setupPubSub() {
       role: "roles/pubsub.publisher",
       members: ["serviceAccount:gmail-api-push@system.gserviceaccount.com"],
     };
-
-    const existingBinding = policy.bindings?.find(
-      (b) => b.role === binding.role,
-    );
-    if (
-      !existingBinding ||
-      !existingBinding.members.includes(binding.members[0])
-    ) {
+    
+    const existingBinding = policy.bindings?.find(b => b.role === binding.role);
+    if (!existingBinding || !existingBinding.members.includes(binding.members[0])) {
       policy.bindings = policy.bindings || [];
       policy.bindings.push(binding);
       await topic.iam.setPolicy(policy);
@@ -59,9 +80,7 @@ async function setupPubSub() {
           pushEndpoint: WEBHOOK_URL,
         },
       });
-      console.log(
-        `[pubsub] Created subscription: ${PUBSUB_SUBSCRIPTION} -> ${WEBHOOK_URL}`,
-      );
+      console.log(`[pubsub] Created subscription: ${PUBSUB_SUBSCRIPTION} -> ${WEBHOOK_URL}`);
     } catch (err) {
       if (err.code === 6) {
         // Already exists - update endpoint
@@ -108,7 +127,7 @@ const GMAIL_REFRESH_TOKEN = process.env.GMAIL_REFRESH_TOKEN || "";
 
 const oauth2Client = new google.auth.OAuth2(
   GMAIL_CLIENT_ID,
-  GMAIL_CLIENT_SECRET,
+  GMAIL_CLIENT_SECRET
 );
 oauth2Client.setCredentials({ refresh_token: GMAIL_REFRESH_TOKEN });
 
@@ -132,16 +151,10 @@ function getCached(ticker) {
   const age = Date.now() - cached.timestamp;
   if (age > CACHE_TTL_MS) {
     delete priceCache[ticker];
-    addLog(
-      "cache",
-      `${ticker} cache expired (${(age / 1000).toFixed(0)}s old)`,
-    );
+    addLog("cache", `${ticker} cache expired (${(age / 1000).toFixed(0)}s old)`);
     return null;
   }
-  addLog(
-    "cache",
-    `${ticker} served from cache (${(age / 1000).toFixed(0)}s old)`,
-  );
+  addLog("cache", `${ticker} served from cache (${(age / 1000).toFixed(0)}s old)`);
   return cached.result;
 }
 
@@ -229,12 +242,10 @@ async function getLatestEmail() {
     // Get body
     let body = "";
     if (message.data.payload.body?.data) {
-      body = Buffer.from(message.data.payload.body.data, "base64").toString(
-        "utf-8",
-      );
+      body = Buffer.from(message.data.payload.body.data, "base64").toString("utf-8");
     } else if (message.data.payload.parts) {
       const textPart = message.data.payload.parts.find(
-        (p) => p.mimeType === "text/plain",
+        (p) => p.mimeType === "text/plain"
       );
       if (textPart?.body?.data) {
         body = Buffer.from(textPart.body.data, "base64").toString("utf-8");
@@ -426,13 +437,10 @@ async function processMessage(body) {
     tickers.map(async (ticker) => {
       const result = await fetchPrice(ticker);
       return { ticker, result };
-    }),
+    })
   );
 
-  addLog(
-    "results",
-    results.map((r) => `${r.ticker}: ${r.result ? "OK" : "FAIL"}`).join(", "),
-  );
+  addLog("results", results.map((r) => `${r.ticker}: ${r.result ? "OK" : "FAIL"}`).join(", "));
 
   const lines = [];
   const errors = [];
@@ -453,8 +461,7 @@ async function processMessage(body) {
   }
 
   if (!message) {
-    message =
-      "No valid symbols found. Text HELP for a list of supported tickers.";
+    message = "No valid symbols found. Text HELP for a list of supported tickers.";
   }
 
   return message;
@@ -547,10 +554,8 @@ router.post("/test-email", async (req, res) => {
 
 router.post("/", async (req, res) => {
   try {
-    const from =
-      req.body?.number || req.body?.from || req.query?.number || "unknown";
-    const body =
-      req.body?.message || req.body?.body || req.query?.message || "";
+    const from = req.body?.number || req.body?.from || req.query?.number || "unknown";
+    const body = req.body?.message || req.body?.body || req.query?.message || "";
 
     addLog("incoming-post", `SMS from ${from}: "${body}"`);
 
@@ -586,9 +591,7 @@ router.get("/cache", (req, res) => {
     price: entry.result.price,
     cachedAt: new Date(entry.timestamp).toISOString(),
     ageSeconds: Math.round((now - entry.timestamp) / 1000),
-    expiresIn:
-      Math.max(0, Math.round((CACHE_TTL_MS - (now - entry.timestamp)) / 1000)) +
-      "s",
+    expiresIn: Math.max(0, Math.round((CACHE_TTL_MS - (now - entry.timestamp)) / 1000)) + "s",
   }));
   res.json(cacheInfo);
 });
@@ -599,11 +602,7 @@ router.get("/health", (req, res) => {
   res.json({
     status: "running",
     apiKeyPresent: !!TWELVE_DATA_API_KEY,
-    gmailConfigured: !!(
-      GMAIL_CLIENT_ID &&
-      GMAIL_CLIENT_SECRET &&
-      GMAIL_REFRESH_TOKEN
-    ),
+    gmailConfigured: !!(GMAIL_CLIENT_ID && GMAIL_CLIENT_SECRET && GMAIL_REFRESH_TOKEN),
     projectId: GOOGLE_PROJECT_ID,
     webhookUrl: WEBHOOK_URL,
     logsCount: logs.length,
@@ -615,19 +614,19 @@ router.get("/health", (req, res) => {
 // Step 1: Setup Pub/Sub topic and subscription
 router.post("/setup-pubsub", async (req, res) => {
   const result = await setupPubSub();
-  res.json({
+  res.json({ 
     success: result,
-    message: result ? "Pub/Sub configured" : "Setup failed, check logs",
+    message: result ? "Pub/Sub configured" : "Setup failed, check logs"
   });
 });
 
 // Step 2: Setup Gmail watch
 router.post("/setup-gmail-watch", async (req, res) => {
   const result = await setupGmailWatch();
-  res.json({
+  res.json({ 
     success: !!result,
     data: result,
-    message: result ? "Gmail watch active" : "Setup failed, check logs",
+    message: result ? "Gmail watch active" : "Setup failed, check logs"
   });
 });
 
@@ -639,8 +638,7 @@ router.post("/setup-all", async (req, res) => {
     pubsub: pubsubResult,
     gmailWatch: !!watchResult,
     watchExpiration: watchResult?.expiration,
-    message:
-      pubsubResult && watchResult ? "All setup complete" : "Some steps failed",
+    message: pubsubResult && watchResult ? "All setup complete" : "Some steps failed"
   });
 });
 

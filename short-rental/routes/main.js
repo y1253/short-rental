@@ -51,7 +51,7 @@ router.use("/promo_code", promoCode);
 router.use("/sms", sms);
 router.use("/smsc", smsC);
 router.use("/qb", qb);
-router.use("/gmail-webhook", gmailWebhook);
+router.use("/gmail", gmailWebhook);
 
 router.get("/", async (req, res) => {
   if (req.query.id) return res.send(await getHouseById(req.query.id));
