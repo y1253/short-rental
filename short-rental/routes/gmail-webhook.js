@@ -17,6 +17,7 @@ const PUBSUB_TOPIC = "gmail-push";
 const PUBSUB_SUBSCRIPTION = "gmail-push-sub";
 const WEBHOOK_URL = "https://ygbackend.com/short_rental/gmail/gmail-webhook";
 
+
 // Parse service account credentials
 function getCredentials() {
   if (GOOGLE_SERVICE_ACCOUNT) {
