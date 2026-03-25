@@ -1,22 +1,55 @@
+import "dotenv/config";
+
 import express from "express";
 import { google } from "googleapis";
 import { PubSub } from "@google-cloud/pubsub";
 import postSms from "../db/smsPOSTnewSms.js";
 import getUniqeSms from "../db/smsGETuniqe.js";
-import "dotenv/config";
 
 const router = express.Router();
 
 // ─── Pub/Sub Config ──────────────────────────────────────
 const GOOGLE_PROJECT_ID = process.env.GOOGLE_PROJECT_ID || "";
+const GOOGLE_SERVICE_ACCOUNT = process.env.GOOGLE_SERVICE_ACCOUNT || ""; // JSON string
 const PUBSUB_TOPIC = "gmail-push";
 const PUBSUB_SUBSCRIPTION = "gmail-push-sub";
-const WEBHOOK_URL = "https://ygbackend.com/short_rental/gmail-webhook";
+const WEBHOOK_URL = "https://ygbackend.com/short_rental/gmail/gmail-webhook";
+
+// Parse service account credentials
+function getCredentials() {
+  if (GOOGLE_SERVICE_ACCOUNT) {
+    try {
+      return JSON.parse(GOOGLE_SERVICE_ACCOUNT);
+    } catch (err) {
+      console.error("[pubsub] Failed to parse GOOGLE_SERVICE_ACCOUNT JSON");
+      return null;
+    }
+  }
+  return null;
+}
 
 // ─── Setup Pub/Sub (run once) ────────────────────────────
 async function setupPubSub() {
   try {
-    const pubsub = new PubSub({ projectId: GOOGLE_PROJECT_ID });
+    const credentials = getCredentials();
+    if (!credentials) {
+      throw new Error(
+        "GOOGLE_SERVICE_ACCOUNT env variable not set or invalid JSON",
+      );
+    }
+
+    // Create auth client from service account credentials
+    const { JWT } = await import("google-auth-library");
+    const authClient = new JWT({
+      email: credentials.client_email,
+      key: credentials.private_key,
+      scopes: ["https://www.googleapis.com/auth/pubsub"],
+    });
+
+    const pubsub = new PubSub({
+      projectId: GOOGLE_PROJECT_ID,
+      authClient: authClient,
+    });
 
     // 1. Create topic (or get existing)
     let topic;
@@ -615,15 +648,6 @@ router.get("/health", (req, res) => {
 
 // Step 1: Setup Pub/Sub topic and subscription
 router.post("/setup-pubsub", async (req, res) => {
-  console.log("GOOGLE_PROJECT_ID:", process.env.GOOGLE_PROJECT_ID);
-  console.log(
-    "GOOGLE_SERVICE_ACCOUNT exists:",
-    !!process.env.GOOGLE_SERVICE_ACCOUNT,
-  );
-  console.log(
-    "GOOGLE_SERVICE_ACCOUNT length:",
-    process.env.GOOGLE_SERVICE_ACCOUNT?.length,
-  );
   const result = await setupPubSub();
   res.json({
     success: result,
