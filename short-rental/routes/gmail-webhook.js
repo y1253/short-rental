@@ -3,6 +3,7 @@ import { google } from "googleapis";
 import { PubSub } from "@google-cloud/pubsub";
 import postSms from "../db/smsPOSTnewSms.js";
 import getUniqeSms from "../db/smsGETuniqe.js";
+import "dotenv/config";
 
 const router = express.Router();
 
@@ -614,6 +615,15 @@ router.get("/health", (req, res) => {
 
 // Step 1: Setup Pub/Sub topic and subscription
 router.post("/setup-pubsub", async (req, res) => {
+  console.log("GOOGLE_PROJECT_ID:", process.env.GOOGLE_PROJECT_ID);
+  console.log(
+    "GOOGLE_SERVICE_ACCOUNT exists:",
+    !!process.env.GOOGLE_SERVICE_ACCOUNT,
+  );
+  console.log(
+    "GOOGLE_SERVICE_ACCOUNT length:",
+    process.env.GOOGLE_SERVICE_ACCOUNT?.length,
+  );
   const result = await setupPubSub();
   res.json({
     success: result,
