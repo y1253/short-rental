@@ -3,6 +3,9 @@ import "dotenv/config";
 import express from "express";
 import { google } from "googleapis";
 import { PubSub } from "@google-cloud/pubsub";
+import fs from "fs";
+import os from "os";
+import path from "path";
 import postSms from "../db/smsPOSTnewSms.js";
 import getUniqeSms from "../db/smsGETuniqe.js";
 
@@ -15,40 +18,38 @@ const PUBSUB_TOPIC = "gmail-push";
 const PUBSUB_SUBSCRIPTION = "gmail-push-sub";
 const WEBHOOK_URL = "https://ygbackend.com/short_rental/gmail/gmail-webhook";
 
-// Parse service account credentials
-function getCredentials() {
-  if (GOOGLE_SERVICE_ACCOUNT) {
-    try {
-      return JSON.parse(GOOGLE_SERVICE_ACCOUNT);
-    } catch (err) {
-      console.error("[pubsub] Failed to parse GOOGLE_SERVICE_ACCOUNT JSON");
-      return null;
-    }
+// Write credentials to temp file and set env var
+function setupCredentials() {
+  if (!GOOGLE_SERVICE_ACCOUNT) {
+    console.error("[pubsub] GOOGLE_SERVICE_ACCOUNT env variable not set");
+    return false;
   }
-  return null;
+
+  try {
+    // Write to temp file
+    const tempPath = path.join(os.tmpdir(), "google-credentials.json");
+    fs.writeFileSync(tempPath, GOOGLE_SERVICE_ACCOUNT);
+
+    // Set the env var that Google libraries look for
+    process.env.GOOGLE_APPLICATION_CREDENTIALS = tempPath;
+
+    console.log(`[pubsub] Credentials written to ${tempPath}`);
+    return true;
+  } catch (err) {
+    console.error(`[pubsub] Failed to setup credentials: ${err.message}`);
+    return false;
+  }
 }
 
 // ─── Setup Pub/Sub (run once) ────────────────────────────
 async function setupPubSub() {
   try {
-    const credentials = getCredentials();
-    if (!credentials) {
-      throw new Error(
-        "GOOGLE_SERVICE_ACCOUNT env variable not set or invalid JSON",
-      );
+    if (!setupCredentials()) {
+      throw new Error("Failed to setup credentials");
     }
-
-    // Create auth client from service account credentials
-    const { JWT } = await import("google-auth-library");
-    const authClient = new JWT({
-      email: credentials.client_email,
-      key: credentials.private_key,
-      scopes: ["https://www.googleapis.com/auth/pubsub"],
-    });
 
     const pubsub = new PubSub({
       projectId: GOOGLE_PROJECT_ID,
-      authClient: authClient,
     });
 
     // 1. Create topic (or get existing)
