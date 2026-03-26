@@ -30,9 +30,12 @@ router.post("/newListing", auth, await adminCheck, async (req, res) => {
   //   await postListings(house_id, listing_type);
   // }
   const results = await getHouseByIdUnActive(house_id);
-  const days=await getListingTypeById(listing_type);
+  const days = await getListingTypeById(listing_type);
 
-  await postActiveHouse({...results,listing_type,price:0,days:days.days}, 0);
+  await postActiveHouse(
+    { ...results, listing_type, price: 0, days: days.days },
+    0,
+  );
   res.status(200).json("Successfully Listed");
 });
 
@@ -47,7 +50,7 @@ router.post("/newPc", auth, await adminCheck, async (req, res) => {
   res.status(200).json({ success: true });
 });
 
-router.delete("/listingTypce/:id", auth, adminCheck, async (req, res) => {
+router.delete("/listingType/:id", auth, adminCheck, async (req, res) => {
   await deleteListingType(req.params.id);
   res.status(200).send("Successfully Deleted");
 });
