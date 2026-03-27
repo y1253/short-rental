@@ -2,9 +2,19 @@ import nodemailer from "nodemailer";
 import { signUpEmail } from "./signUpEmail.js";
 import { paymentConfirmationEmail } from "./paymentConfirmationEmai.js";
 
+// const mailConfig = nodemailer.createTransport({
+//   //service: "Hotmail",
+//   service: "gmail",
+//   auth: {
+//     user: "heimishhub@gmail.com",
+//     pass: "jmqy wbon ikwp bogd",
+//   },
+// });
+
 const mailConfig = nodemailer.createTransport({
-  //service: "Hotmail",
-  service: "gmail",
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false, // important for 587
   auth: {
     user: "heimishhub@gmail.com",
     pass: "jmqy wbon ikwp bogd",
@@ -24,11 +34,11 @@ export default async function ({
       address: "HeimishHub",
     },
     to: email,
-    subject: emailType === 1
-    ? "Welcome to HeimishHub! Your Journey Starts Here"
-    : "Great News! Your HeimishHub Payment Was Successful",
+    subject:
+      emailType === 1
+        ? "Welcome to HeimishHub! Your Journey Starts Here"
+        : "Great News! Your HeimishHub Payment Was Successful",
 
-    
     html:
       emailType === 1
         ? signUpEmail(name)
